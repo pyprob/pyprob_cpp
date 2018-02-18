@@ -1,12 +1,5 @@
 namespace PPLProtocol;
 
-root_type Message;
-file_identifier "PPLP";
-
-table Message {
-  body: MessageBody
-}
-
 union MessageBody {
   Run,
   RunResult,
@@ -16,9 +9,18 @@ union MessageBody {
   ObserveResult
 }
 
+table Message {
+  body: MessageBody;
+}
+
 table ProtocolTensor {
   data: [double];
   shape: [int];
+}
+
+union Distribution {
+  Normal,
+  Uniform
 }
 
 table Run {
@@ -46,11 +48,6 @@ table Observe {
 
 table ObserveResult {}
 
-union Distribution {
-  Normal,
-  Uniform
-}
-
 table Normal {
   mean: double;
   stddev: double;
@@ -60,3 +57,6 @@ table Uniform {
   low: double;
   high: double;
 }
+
+root_type Message;
+file_identifier "PPLP";
