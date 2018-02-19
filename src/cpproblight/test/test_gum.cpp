@@ -3,15 +3,16 @@
 #include <cpproblight.h>
 
 
-xt::xarray<double> forward(xt::xarray<double>)
+xt::xarray<double> forward(xt::xarray<double> observation)
 {
-  return xt::xarray<double> {1.5,2.0,3.0,4.0};
+  auto uniform = cpproblight::distributions::Uniform(0, 1);
+  auto a = cpproblight::sample(uniform);
+  return a * observation;
 }
 
 int main(int argc, char *argv[])
 {
   cpproblight::Model model = cpproblight::Model(forward);
-  model.startServer("server_address");
-  model.stopServer();
+  model.startServer();
   return 0;
 }

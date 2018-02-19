@@ -393,7 +393,8 @@ struct Sample FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_ADDRESS = 4,
     VT_DISTRIBUTION_TYPE = 6,
     VT_DISTRIBUTION = 8,
-    VT_CONTROLLED = 10
+    VT_CONTROL = 10,
+    VT_RECORD_LAST_ONLY = 12
   };
   const flatbuffers::String *address() const {
     return GetPointer<const flatbuffers::String *>(VT_ADDRESS);
@@ -411,8 +412,11 @@ struct Sample FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const Uniform *distribution_as_Uniform() const {
     return distribution_type() == Distribution_Uniform ? static_cast<const Uniform *>(distribution()) : nullptr;
   }
-  bool controlled() const {
-    return GetField<uint8_t>(VT_CONTROLLED, 1) != 0;
+  bool control() const {
+    return GetField<uint8_t>(VT_CONTROL, 1) != 0;
+  }
+  bool record_last_only() const {
+    return GetField<uint8_t>(VT_RECORD_LAST_ONLY, 0) != 0;
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -421,7 +425,8 @@ struct Sample FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyField<uint8_t>(verifier, VT_DISTRIBUTION_TYPE) &&
            VerifyOffset(verifier, VT_DISTRIBUTION) &&
            VerifyDistribution(verifier, distribution(), distribution_type()) &&
-           VerifyField<uint8_t>(verifier, VT_CONTROLLED) &&
+           VerifyField<uint8_t>(verifier, VT_CONTROL) &&
+           VerifyField<uint8_t>(verifier, VT_RECORD_LAST_ONLY) &&
            verifier.EndTable();
   }
 };
@@ -446,8 +451,11 @@ struct SampleBuilder {
   void add_distribution(flatbuffers::Offset<void> distribution) {
     fbb_.AddOffset(Sample::VT_DISTRIBUTION, distribution);
   }
-  void add_controlled(bool controlled) {
-    fbb_.AddElement<uint8_t>(Sample::VT_CONTROLLED, static_cast<uint8_t>(controlled), 1);
+  void add_control(bool control) {
+    fbb_.AddElement<uint8_t>(Sample::VT_CONTROL, static_cast<uint8_t>(control), 1);
+  }
+  void add_record_last_only(bool record_last_only) {
+    fbb_.AddElement<uint8_t>(Sample::VT_RECORD_LAST_ONLY, static_cast<uint8_t>(record_last_only), 0);
   }
   explicit SampleBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -466,11 +474,13 @@ inline flatbuffers::Offset<Sample> CreateSample(
     flatbuffers::Offset<flatbuffers::String> address = 0,
     Distribution distribution_type = Distribution_NONE,
     flatbuffers::Offset<void> distribution = 0,
-    bool controlled = true) {
+    bool control = true,
+    bool record_last_only = false) {
   SampleBuilder builder_(_fbb);
   builder_.add_distribution(distribution);
   builder_.add_address(address);
-  builder_.add_controlled(controlled);
+  builder_.add_record_last_only(record_last_only);
+  builder_.add_control(control);
   builder_.add_distribution_type(distribution_type);
   return builder_.Finish();
 }
@@ -480,13 +490,15 @@ inline flatbuffers::Offset<Sample> CreateSampleDirect(
     const char *address = nullptr,
     Distribution distribution_type = Distribution_NONE,
     flatbuffers::Offset<void> distribution = 0,
-    bool controlled = true) {
+    bool control = true,
+    bool record_last_only = false) {
   return PPLProtocol::CreateSample(
       _fbb,
       address ? _fbb.CreateString(address) : 0,
       distribution_type,
       distribution,
-      controlled);
+      control,
+      record_last_only);
 }
 
 struct SampleResult FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {

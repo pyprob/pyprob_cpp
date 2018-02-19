@@ -3,21 +3,62 @@
 #include <string>
 #include "xtensor/xarray.hpp"
 #include "xtensor/xio.hpp"
+#include "pplprotocol_generated.h"
+#include <zmq.hpp>
 
 
 namespace cpproblight
 {
+  namespace distributions
+  {
+    class Distribution
+    {
+    public:
+      virtual double sample(const bool control, const bool record_last_only, const std::string& address);
+    };
+
+    class Uniform: public Distribution
+    {
+    private:
+      double low;
+      double high;
+
+    public:
+      Uniform(double low=0, double high=1);
+      double sample(const bool control, const bool record_last_only, const std::string& address);
+    };
+
+    class Normal: public Distribution
+    {
+    private:
+      double mean;
+      double stddev;
+
+    public:
+      Normal(double mean=0, double stddev=1);
+      double sample(const bool control, const bool record_last_only, const std::string& address);
+    };
+  }
+
   class Model
   {
-    std::string serverAddress;
+  private:
     xt::xarray<double> (*modelFunction)(xt::xarray<double>);
+    std::string serverAddress;
 
   public:
     Model(xt::xarray<double> (*modelFunction)(xt::xarray<double>));
-
-    void startServer(const std::string& serverAddress);
-    void stopServer();
+    void startServer(const std::string& serverAddress = "tcp://*:5555");
   };
+
+  double sample(distributions::Distribution& distribution, const bool control=true, const bool record_last_only=false, const std::string& address="");
+
+  xt::xarray<double> ProtocolTensorToXTensor(const PPLProtocol::ProtocolTensor* protocolTensor);
+
+  flatbuffers::Offset<PPLProtocol::ProtocolTensor> XTensorToProtocolTensor(flatbuffers::FlatBufferBuilder& builder, xt::xarray<double> xtensor);
+
+  const PPLProtocol::Message* receiveMessage();
+  void sendMessage(flatbuffers::Offset<PPLProtocol::Message> message);
 }
 
 #endif

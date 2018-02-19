@@ -9,6 +9,6 @@ target_include_directories(cpproblight PUBLIC
   PRIVATE src)
 
 add_executable(test_gum test/test_gum.cpp)
-target_link_libraries(test_gum cpproblight)
+target_link_libraries(test_gum cpproblight zmq)
 
 add_test(test_gum_1 test_gum)

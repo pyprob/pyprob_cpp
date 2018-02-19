@@ -34,7 +34,8 @@ table RunResult {
 table Sample {
   address: string;
   distribution: Distribution;
-  controlled: bool = true;
+  control: bool = true;
+  record_last_only: bool = false;
 }
 
 table SampleResult {
