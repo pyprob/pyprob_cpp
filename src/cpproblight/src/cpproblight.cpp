@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <iostream>
 #include "xtensor/xadapt.hpp"
-// #include <unistd.h>
 #include <typeinfo>
 #include <cxxabi.h>
 #include <cstdlib>
@@ -16,8 +15,13 @@ namespace cpproblight
 
   namespace distributions
   {
-    double Distribution::sample(const bool control, const bool record_last_only, const std::string& address){
-      return 0;
+    xt::xarray<double> Distribution::sample(const bool control, const bool record_last_only, const std::string& address)
+    {
+      return xt::xarray<double> {0};
+    }
+    void Distribution::observe(xt::xarray<double> value)
+    {
+      return;
     }
 
     Uniform::Uniform(double low, double high)
@@ -25,21 +29,18 @@ namespace cpproblight
       this->low = low;
       this->high = high;
     }
-    double Uniform::sample(const bool control, const bool record_last_only, const std::string& address)
+    xt::xarray<double> Uniform::sample(const bool control, const bool record_last_only, const std::string& address)
     {
       auto uniform = PPLProtocol::CreateUniform(builder, this->low, this->high);
-      auto addr = builder.CreateString(address);
-      auto sample = PPLProtocol::CreateSample(builder, addr, PPLProtocol::Distribution_Uniform, uniform.Union());
+      auto sample = PPLProtocol::CreateSampleDirect(builder, address.c_str(), PPLProtocol::Distribution_Uniform, uniform.Union(), control, record_last_only);
       auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Sample, sample.Union());
       sendMessage(message_request);
 
       auto message_reply = receiveMessage();
       if (message_reply->body_type() == PPLProtocol::MessageBody_SampleResult)
       {
-        printf("Protocol: Sample result received.\n");
         auto result = ProtocolTensorToXTensor(message_reply->body_as_SampleResult()->result());
-        std::cout << result << std::endl;
-        return result(0);
+        return result;
       }
       else
       {
@@ -47,15 +48,52 @@ namespace cpproblight
         std::exit(EXIT_FAILURE);
       }
     }
+    void Uniform::observe(xt::xarray<double> value)
+    {
+      auto val = XTensorToProtocolTensor(builder, value);
+      auto uniform = PPLProtocol::CreateUniform(builder, this->low, this->high);
+      auto observe = PPLProtocol::CreateObserve(builder, PPLProtocol::Distribution_Uniform, uniform.Union(), val);
+      auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Observe, observe.Union());
+      sendMessage(message_request);
+
+      auto message_reply = receiveMessage();
+      return;
+    }
 
     Normal::Normal(double mean, double stddev)
     {
       this->mean = mean;
       this->stddev = stddev;
     }
-    double Normal::sample(const bool control, const bool record_last_only, const std::string& address)
+    xt::xarray<double> Normal::sample(const bool control, const bool record_last_only, const std::string& address)
     {
-      return 0;
+      auto normal = PPLProtocol::CreateNormal(builder, this->mean, this->stddev);
+      auto sample = PPLProtocol::CreateSampleDirect(builder, address.c_str(), PPLProtocol::Distribution_Normal, normal.Union(), control, record_last_only);
+      auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Sample, sample.Union());
+      sendMessage(message_request);
+
+      auto message_reply = receiveMessage();
+      if (message_reply->body_type() == PPLProtocol::MessageBody_SampleResult)
+      {
+        auto result = ProtocolTensorToXTensor(message_reply->body_as_SampleResult()->result());
+        return result;
+      }
+      else
+      {
+        printf("Error: protocol received an unexpected request.\n");
+        std::exit(EXIT_FAILURE);
+      }
+    }
+    void Normal::observe(xt::xarray<double> value)
+    {
+      auto val = XTensorToProtocolTensor(builder, value);
+      auto normal = PPLProtocol::CreateNormal(builder, this->mean, this->stddev);
+      auto observe = PPLProtocol::CreateObserve(builder, PPLProtocol::Distribution_Normal, normal.Union(), val);
+      auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Observe, observe.Union());
+      sendMessage(message_request);
+
+      auto message_reply = receiveMessage();
+      return;
     }
   }
 
@@ -76,7 +114,7 @@ namespace cpproblight
       auto message = receiveMessage();
       if (message->body_type() == PPLProtocol::MessageBody_Run)
       {
-        printf("Protocol: Run request received.\n");
+        printf(".\n");
         auto observation = ProtocolTensorToXTensor(message->body_as_Run()->observation());
         auto result = XTensorToProtocolTensor(builder, this->modelFunction(observation));
 
@@ -92,9 +130,14 @@ namespace cpproblight
     }
   }
 
-  double sample(distributions::Distribution& distribution, const bool control, const bool record_last_only, const std::string& address)
+  xt::xarray<double> sample(distributions::Distribution& distribution, const bool control, const bool record_last_only, const std::string& address)
   {
     return distribution.sample(control, record_last_only, address);
+  }
+
+  void observe(distributions::Distribution& distribution, xt::xarray<double> value)
+  {
+    return distribution.observe(value);
   }
 
   xt::xarray<double> ProtocolTensorToXTensor(const PPLProtocol::ProtocolTensor* protocolTensor)
