@@ -5,6 +5,7 @@
 #include <typeinfo>
 #include <cxxabi.h>
 #include <cstdlib>
+#include <locale.h>
 
 
 namespace cpproblight
@@ -97,29 +98,46 @@ namespace cpproblight
     }
   }
 
-  Model::Model(xt::xarray<double> (*modelFunction)(xt::xarray<double>))
+  Model::Model(xt::xarray<double> (*modelFunction)(xt::xarray<double>), const std::string& modelName)
   {
     this->modelFunction = modelFunction;
+    this->modelName = modelName;
+    setlocale(LC_ALL,"");
+    std::stringstream s;
+    s << "cpproblight " << VERSION << " (" << GIT_BRANCH << ":" << GIT_COMMIT_HASH << ")";
+    this->systemName = s.str();
   }
 
   void Model::startServer(const std::string& serverAddress)
   {
     this->serverAddress = serverAddress;
-
     zmqSocket.bind(serverAddress.c_str());
-    printf("Protocol: ZMQ_REP server running at %s\n", this->serverAddress.c_str());
+    printf("Protocol: ZMQ_REP server listening at %s\n", this->serverAddress.c_str());
+    printf("Protocol: this system: %s\n", this->systemName.c_str());
+    printf("Protocol: model name : %s\n", this->modelName.c_str());
 
+    int traces = 0;
     while(true)
     {
       auto message = receiveMessage();
       if (message->body_type() == PPLProtocol::MessageBody_Run)
       {
-        printf(".\n");
+        printf("Executed traces: %'d\r", ++traces);
+        std::cout.flush();
+
         auto observation = ProtocolTensorToXTensor(message->body_as_Run()->observation());
         auto result = XTensorToProtocolTensor(builder, this->modelFunction(observation));
 
         auto runResult = PPLProtocol::CreateRunResult(builder, result);
         auto message = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_RunResult, runResult.Union());
+        sendMessage(message);
+      }
+      else if (message->body_type() == PPLProtocol::MessageBody_Handshake)
+      {
+        auto systemName = message->body_as_Handshake()->system_name()->str();
+        printf("Protocol: connected to PPL system: %s\n", systemName.c_str());
+        auto handshakeResult = PPLProtocol::CreateHandshakeResultDirect(builder, this->systemName.c_str(), this->modelName.c_str());
+        auto message = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_HandshakeResult, handshakeResult.Union());
         sendMessage(message);
       }
       else

@@ -1,5 +1,6 @@
 #ifndef CPPROBLIGHT_H
 #define CPPROBLIGHT_H
+#include "version.h"
 #include <string>
 #include "xtensor/xarray.hpp"
 #include "xtensor/xio.hpp"
@@ -48,9 +49,11 @@ namespace cpproblight
   private:
     xt::xarray<double> (*modelFunction)(xt::xarray<double>);
     std::string serverAddress;
+    std::string modelName;
+    std::string systemName;
 
   public:
-    Model(xt::xarray<double> (*modelFunction)(xt::xarray<double>));
+    Model(xt::xarray<double> (*modelFunction)(xt::xarray<double>), const std::string& modelName = "Unnamed cpproblight C++ model");
     void startServer(const std::string& serverAddress = "tcp://*:5555");
   };
 

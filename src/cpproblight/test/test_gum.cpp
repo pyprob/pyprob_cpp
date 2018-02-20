@@ -1,5 +1,3 @@
-// #include <stdio.h>
-// #include <stdlib.h>
 #include <cpproblight.h>
 
 
@@ -24,7 +22,7 @@ xt::xarray<double> forward(xt::xarray<double> observation)
 
 int main(int argc, char *argv[])
 {
-  cpproblight::Model model = cpproblight::Model(forward);
+  cpproblight::Model model = cpproblight::Model(forward, "Gaussian with unknown mean C++");
   model.startServer();
   return 0;
 }

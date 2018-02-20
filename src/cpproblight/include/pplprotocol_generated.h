@@ -12,6 +12,10 @@ struct Message;
 
 struct ProtocolTensor;
 
+struct Handshake;
+
+struct HandshakeResult;
+
 struct Run;
 
 struct RunResult;
@@ -30,19 +34,23 @@ struct Uniform;
 
 enum MessageBody {
   MessageBody_NONE = 0,
-  MessageBody_Run = 1,
-  MessageBody_RunResult = 2,
-  MessageBody_Sample = 3,
-  MessageBody_SampleResult = 4,
-  MessageBody_Observe = 5,
-  MessageBody_ObserveResult = 6,
+  MessageBody_Handshake = 1,
+  MessageBody_HandshakeResult = 2,
+  MessageBody_Run = 3,
+  MessageBody_RunResult = 4,
+  MessageBody_Sample = 5,
+  MessageBody_SampleResult = 6,
+  MessageBody_Observe = 7,
+  MessageBody_ObserveResult = 8,
   MessageBody_MIN = MessageBody_NONE,
   MessageBody_MAX = MessageBody_ObserveResult
 };
 
-inline MessageBody (&EnumValuesMessageBody())[7] {
+inline MessageBody (&EnumValuesMessageBody())[9] {
   static MessageBody values[] = {
     MessageBody_NONE,
+    MessageBody_Handshake,
+    MessageBody_HandshakeResult,
     MessageBody_Run,
     MessageBody_RunResult,
     MessageBody_Sample,
@@ -56,6 +64,8 @@ inline MessageBody (&EnumValuesMessageBody())[7] {
 inline const char **EnumNamesMessageBody() {
   static const char *names[] = {
     "NONE",
+    "Handshake",
+    "HandshakeResult",
     "Run",
     "RunResult",
     "Sample",
@@ -74,6 +84,14 @@ inline const char *EnumNameMessageBody(MessageBody e) {
 
 template<typename T> struct MessageBodyTraits {
   static const MessageBody enum_value = MessageBody_NONE;
+};
+
+template<> struct MessageBodyTraits<Handshake> {
+  static const MessageBody enum_value = MessageBody_Handshake;
+};
+
+template<> struct MessageBodyTraits<HandshakeResult> {
+  static const MessageBody enum_value = MessageBody_HandshakeResult;
 };
 
 template<> struct MessageBodyTraits<Run> {
@@ -162,6 +180,12 @@ struct Message FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     return GetPointer<const void *>(VT_BODY);
   }
   template<typename T> const T *body_as() const;
+  const Handshake *body_as_Handshake() const {
+    return body_type() == MessageBody_Handshake ? static_cast<const Handshake *>(body()) : nullptr;
+  }
+  const HandshakeResult *body_as_HandshakeResult() const {
+    return body_type() == MessageBody_HandshakeResult ? static_cast<const HandshakeResult *>(body()) : nullptr;
+  }
   const Run *body_as_Run() const {
     return body_type() == MessageBody_Run ? static_cast<const Run *>(body()) : nullptr;
   }
@@ -188,6 +212,14 @@ struct Message FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            verifier.EndTable();
   }
 };
+
+template<> inline const Handshake *Message::body_as<Handshake>() const {
+  return body_as_Handshake();
+}
+
+template<> inline const HandshakeResult *Message::body_as<HandshakeResult>() const {
+  return body_as_HandshakeResult();
+}
 
 template<> inline const Run *Message::body_as<Run>() const {
   return body_as_Run();
@@ -304,6 +336,117 @@ inline flatbuffers::Offset<ProtocolTensor> CreateProtocolTensorDirect(
       _fbb,
       data ? _fbb.CreateVector<double>(*data) : 0,
       shape ? _fbb.CreateVector<int32_t>(*shape) : 0);
+}
+
+struct Handshake FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  enum {
+    VT_SYSTEM_NAME = 4
+  };
+  const flatbuffers::String *system_name() const {
+    return GetPointer<const flatbuffers::String *>(VT_SYSTEM_NAME);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_SYSTEM_NAME) &&
+           verifier.Verify(system_name()) &&
+           verifier.EndTable();
+  }
+};
+
+struct HandshakeBuilder {
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_system_name(flatbuffers::Offset<flatbuffers::String> system_name) {
+    fbb_.AddOffset(Handshake::VT_SYSTEM_NAME, system_name);
+  }
+  explicit HandshakeBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  HandshakeBuilder &operator=(const HandshakeBuilder &);
+  flatbuffers::Offset<Handshake> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<Handshake>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<Handshake> CreateHandshake(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    flatbuffers::Offset<flatbuffers::String> system_name = 0) {
+  HandshakeBuilder builder_(_fbb);
+  builder_.add_system_name(system_name);
+  return builder_.Finish();
+}
+
+inline flatbuffers::Offset<Handshake> CreateHandshakeDirect(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    const char *system_name = nullptr) {
+  return PPLProtocol::CreateHandshake(
+      _fbb,
+      system_name ? _fbb.CreateString(system_name) : 0);
+}
+
+struct HandshakeResult FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  enum {
+    VT_SYSTEM_NAME = 4,
+    VT_MODEL_NAME = 6
+  };
+  const flatbuffers::String *system_name() const {
+    return GetPointer<const flatbuffers::String *>(VT_SYSTEM_NAME);
+  }
+  const flatbuffers::String *model_name() const {
+    return GetPointer<const flatbuffers::String *>(VT_MODEL_NAME);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_SYSTEM_NAME) &&
+           verifier.Verify(system_name()) &&
+           VerifyOffset(verifier, VT_MODEL_NAME) &&
+           verifier.Verify(model_name()) &&
+           verifier.EndTable();
+  }
+};
+
+struct HandshakeResultBuilder {
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_system_name(flatbuffers::Offset<flatbuffers::String> system_name) {
+    fbb_.AddOffset(HandshakeResult::VT_SYSTEM_NAME, system_name);
+  }
+  void add_model_name(flatbuffers::Offset<flatbuffers::String> model_name) {
+    fbb_.AddOffset(HandshakeResult::VT_MODEL_NAME, model_name);
+  }
+  explicit HandshakeResultBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  HandshakeResultBuilder &operator=(const HandshakeResultBuilder &);
+  flatbuffers::Offset<HandshakeResult> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<HandshakeResult>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<HandshakeResult> CreateHandshakeResult(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    flatbuffers::Offset<flatbuffers::String> system_name = 0,
+    flatbuffers::Offset<flatbuffers::String> model_name = 0) {
+  HandshakeResultBuilder builder_(_fbb);
+  builder_.add_model_name(model_name);
+  builder_.add_system_name(system_name);
+  return builder_.Finish();
+}
+
+inline flatbuffers::Offset<HandshakeResult> CreateHandshakeResultDirect(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    const char *system_name = nullptr,
+    const char *model_name = nullptr) {
+  return PPLProtocol::CreateHandshakeResult(
+      _fbb,
+      system_name ? _fbb.CreateString(system_name) : 0,
+      model_name ? _fbb.CreateString(model_name) : 0);
 }
 
 struct Run FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
@@ -751,6 +894,14 @@ inline bool VerifyMessageBody(flatbuffers::Verifier &verifier, const void *obj, 
   switch (type) {
     case MessageBody_NONE: {
       return true;
+    }
+    case MessageBody_Handshake: {
+      auto ptr = reinterpret_cast<const Handshake *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case MessageBody_HandshakeResult: {
+      auto ptr = reinterpret_cast<const HandshakeResult *>(obj);
+      return verifier.VerifyTable(ptr);
     }
     case MessageBody_Run: {
       auto ptr = reinterpret_cast<const Run *>(obj);
