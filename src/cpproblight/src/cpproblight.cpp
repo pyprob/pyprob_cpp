@@ -17,7 +17,7 @@ namespace cpproblight
 
   namespace distributions
   {
-    xt::xarray<double> Distribution::sample(const bool control, const bool record_last_only, const std::string& address)
+    xt::xarray<double> Distribution::sample(const bool control, const bool replace, const std::string& address)
     {
       return xt::xarray<double> {0};
     }
@@ -31,10 +31,10 @@ namespace cpproblight
       this->low = low;
       this->high = high;
     }
-    xt::xarray<double> Uniform::sample(const bool control, const bool record_last_only, const std::string& address)
+    xt::xarray<double> Uniform::sample(const bool control, const bool replace, const std::string& address)
     {
       auto uniform = PPLProtocol::CreateUniform(builder, this->low, this->high);
-      auto sample = PPLProtocol::CreateSampleDirect(builder, address.c_str(), PPLProtocol::Distribution_Uniform, uniform.Union(), control, record_last_only);
+      auto sample = PPLProtocol::CreateSampleDirect(builder, address.c_str(), PPLProtocol::Distribution_Uniform, uniform.Union(), control, replace);
       auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Sample, sample.Union());
       sendMessage(message_request);
 
@@ -67,10 +67,10 @@ namespace cpproblight
       this->mean = mean;
       this->stddev = stddev;
     }
-    xt::xarray<double> Normal::sample(const bool control, const bool record_last_only, const std::string& address)
+    xt::xarray<double> Normal::sample(const bool control, const bool replace, const std::string& address)
     {
       auto normal = PPLProtocol::CreateNormal(builder, this->mean, this->stddev);
-      auto sample = PPLProtocol::CreateSampleDirect(builder, address.c_str(), PPLProtocol::Distribution_Normal, normal.Union(), control, record_last_only);
+      auto sample = PPLProtocol::CreateSampleDirect(builder, address.c_str(), PPLProtocol::Distribution_Normal, normal.Union(), control, replace);
       auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Sample, sample.Union());
       sendMessage(message_request);
 
@@ -149,15 +149,15 @@ namespace cpproblight
     }
   }
 
-  xt::xarray<double> sample(distributions::Distribution& distribution, const bool control, const bool record_last_only, const std::string& address)
+  xt::xarray<double> sample(distributions::Distribution& distribution, const bool control, const bool replace, const std::string& address)
   {
     if (address.length() == 0)
     {
-      return distribution.sample(control, record_last_only, extractAddress());
+      return distribution.sample(control, replace, extractAddress());
     }
     else
     {
-      return distribution.sample(control, record_last_only, address);
+      return distribution.sample(control, replace, address);
     }
   }
 

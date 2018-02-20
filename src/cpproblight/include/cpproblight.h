@@ -15,7 +15,7 @@ namespace cpproblight
     class Distribution
     {
     public:
-      virtual xt::xarray<double> sample(const bool control, const bool record_last_only, const std::string& address);
+      virtual xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
       virtual void observe(xt::xarray<double> value);
     };
 
@@ -27,7 +27,7 @@ namespace cpproblight
 
     public:
       Uniform(double low=0, double high=1);
-      xt::xarray<double> sample(const bool control, const bool record_last_only, const std::string& address);
+      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
       void observe(xt::xarray<double> value);
     };
 
@@ -39,7 +39,7 @@ namespace cpproblight
 
     public:
       Normal(double mean=0, double stddev=1);
-      xt::xarray<double> sample(const bool control, const bool record_last_only, const std::string& address);
+      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
       void observe(xt::xarray<double> value);
     };
   }
@@ -57,7 +57,7 @@ namespace cpproblight
     void startServer(const std::string& serverAddress = "tcp://*:5555");
   };
 
-  xt::xarray<double> sample(distributions::Distribution& distribution, const bool control=true, const bool record_last_only=false, const std::string& address="");
+  xt::xarray<double> sample(distributions::Distribution& distribution, const bool control=true, const bool replace=false, const std::string& address="");
 
   void observe(distributions::Distribution& distribution, xt::xarray<double> value);
 

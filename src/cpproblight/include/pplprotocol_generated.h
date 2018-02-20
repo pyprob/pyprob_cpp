@@ -537,7 +537,7 @@ struct Sample FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_DISTRIBUTION_TYPE = 6,
     VT_DISTRIBUTION = 8,
     VT_CONTROL = 10,
-    VT_RECORD_LAST_ONLY = 12
+    VT_REPLACE = 12
   };
   const flatbuffers::String *address() const {
     return GetPointer<const flatbuffers::String *>(VT_ADDRESS);
@@ -558,8 +558,8 @@ struct Sample FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   bool control() const {
     return GetField<uint8_t>(VT_CONTROL, 1) != 0;
   }
-  bool record_last_only() const {
-    return GetField<uint8_t>(VT_RECORD_LAST_ONLY, 0) != 0;
+  bool replace() const {
+    return GetField<uint8_t>(VT_REPLACE, 0) != 0;
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -569,7 +569,7 @@ struct Sample FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyOffset(verifier, VT_DISTRIBUTION) &&
            VerifyDistribution(verifier, distribution(), distribution_type()) &&
            VerifyField<uint8_t>(verifier, VT_CONTROL) &&
-           VerifyField<uint8_t>(verifier, VT_RECORD_LAST_ONLY) &&
+           VerifyField<uint8_t>(verifier, VT_REPLACE) &&
            verifier.EndTable();
   }
 };
@@ -597,8 +597,8 @@ struct SampleBuilder {
   void add_control(bool control) {
     fbb_.AddElement<uint8_t>(Sample::VT_CONTROL, static_cast<uint8_t>(control), 1);
   }
-  void add_record_last_only(bool record_last_only) {
-    fbb_.AddElement<uint8_t>(Sample::VT_RECORD_LAST_ONLY, static_cast<uint8_t>(record_last_only), 0);
+  void add_replace(bool replace) {
+    fbb_.AddElement<uint8_t>(Sample::VT_REPLACE, static_cast<uint8_t>(replace), 0);
   }
   explicit SampleBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -618,11 +618,11 @@ inline flatbuffers::Offset<Sample> CreateSample(
     Distribution distribution_type = Distribution_NONE,
     flatbuffers::Offset<void> distribution = 0,
     bool control = true,
-    bool record_last_only = false) {
+    bool replace = false) {
   SampleBuilder builder_(_fbb);
   builder_.add_distribution(distribution);
   builder_.add_address(address);
-  builder_.add_record_last_only(record_last_only);
+  builder_.add_replace(replace);
   builder_.add_control(control);
   builder_.add_distribution_type(distribution_type);
   return builder_.Finish();
@@ -634,14 +634,14 @@ inline flatbuffers::Offset<Sample> CreateSampleDirect(
     Distribution distribution_type = Distribution_NONE,
     flatbuffers::Offset<void> distribution = 0,
     bool control = true,
-    bool record_last_only = false) {
+    bool replace = false) {
   return PPLProtocol::CreateSample(
       _fbb,
       address ? _fbb.CreateString(address) : 0,
       distribution_type,
       distribution,
       control,
-      record_last_only);
+      replace);
 }
 
 struct SampleResult FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
