@@ -16,8 +16,12 @@ target_link_libraries(test_gum cpproblight zmq)
 add_executable(test_gum_marsaglia test/test_gum_marsaglia.cpp)
 target_link_libraries(test_gum_marsaglia cpproblight zmq)
 
+add_executable(test_gum_marsaglia_replacement test/test_gum_marsaglia_replacement.cpp)
+target_link_libraries(test_gum_marsaglia_replacement cpproblight zmq)
+
 add_test(test_gum_1 test_gum)
 add_test(test_gum_marsaglia_1 test_gum_marsaglia)
+add_test(test_gum_marsaglia_replacement_1 test_gum_marsaglia_replacement)
 
 
 
