@@ -230,6 +230,10 @@ namespace cpproblight
     char **symbols;
 
     int nptrs = backtrace(buffer, buffer_size);
+    if (nptrs == buffer_size)
+    {
+      printf("Warning: backtrace buffer full, addresses are likely to be truncated.\n");
+    }
     symbols = backtrace_symbols(buffer, nptrs);
     if (symbols == nullptr)
     {
