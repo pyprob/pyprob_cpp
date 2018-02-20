@@ -6,6 +6,7 @@
 #include <cxxabi.h>
 #include <cstdlib>
 #include <locale.h>
+#include <execinfo.h>
 
 
 namespace cpproblight
@@ -112,9 +113,9 @@ namespace cpproblight
   {
     this->serverAddress = serverAddress;
     zmqSocket.bind(serverAddress.c_str());
-    printf("Protocol: ZMQ_REP server listening at %s\n", this->serverAddress.c_str());
-    printf("Protocol: this system: %s\n", this->systemName.c_str());
-    printf("Protocol: model name : %s\n", this->modelName.c_str());
+    printf("Protocol (C++): ZMQ_REP server listening at %s\n", this->serverAddress.c_str());
+    printf("Protocol (C++): this system: %s\n", this->systemName.c_str());
+    printf("Protocol (C++): model name : %s\n", this->modelName.c_str());
 
     int traces = 0;
     while(true)
@@ -135,7 +136,7 @@ namespace cpproblight
       else if (message->body_type() == PPLProtocol::MessageBody_Handshake)
       {
         auto systemName = message->body_as_Handshake()->system_name()->str();
-        printf("Protocol: connected to PPL system: %s\n", systemName.c_str());
+        printf("Protocol (C++): connected to PPL system: %s\n", systemName.c_str());
         auto handshakeResult = PPLProtocol::CreateHandshakeResultDirect(builder, this->systemName.c_str(), this->modelName.c_str());
         auto message = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_HandshakeResult, handshakeResult.Union());
         sendMessage(message);
@@ -150,7 +151,14 @@ namespace cpproblight
 
   xt::xarray<double> sample(distributions::Distribution& distribution, const bool control, const bool record_last_only, const std::string& address)
   {
-    return distribution.sample(control, record_last_only, address);
+    if (address.length() == 0)
+    {
+      return distribution.sample(control, record_last_only, extractAddress());
+    }
+    else
+    {
+      return distribution.sample(control, record_last_only, address);
+    }
   }
 
   void observe(distributions::Distribution& distribution, xt::xarray<double> value)
@@ -194,4 +202,63 @@ namespace cpproblight
     zmqSocket.send(request);
     builder.Clear();
   }
+
+  std::string demangle(std::string str)
+  {
+    auto first = str.find_last_of('(') + 1;
+    auto last = str.find_last_of(')');
+    auto plus = str.find_last_of('+');
+
+    int status = -1;
+    char *result = abi::__cxa_demangle(str.substr(first, plus - first).c_str(), nullptr, nullptr, &status);
+    if ( status == 0 )
+    {
+      auto demangled = std::string(result);
+      std::free(result);
+      return demangled + str.substr(plus, last - plus);
+    }
+    else
+    {
+      return str;
+    }
+  }
+
+  std::string extractAddress()
+  {
+    const int buffer_size = 128;
+    void *buffer[buffer_size];
+    char **symbols;
+
+    int nptrs = backtrace(buffer, buffer_size);
+    symbols = backtrace_symbols(buffer, nptrs);
+    if (symbols == nullptr)
+    {
+      std::perror("backtrace_symbols");
+      std::exit(EXIT_FAILURE);
+    }
+    std::stringstream ret;
+    ret << "[";
+    bool begin = false;
+    for (int j = nptrs - 1; j > 1; j--)
+    {
+      auto s = std::string(symbols[j]);
+      if (begin)
+      {
+        ret << demangle(s);
+        if (j != 2)
+        {
+          ret << "; ";
+        }
+      }
+      if ((s.find("cpproblight") != std::string::npos) && (s.find("startServer") != std::string::npos))
+      {
+        begin = true;
+      }
+    }
+
+    ret << "]";
+    std::free(symbols);
+    return ret.str();
+  }
+
 }

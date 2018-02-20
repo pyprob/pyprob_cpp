@@ -66,7 +66,12 @@ namespace cpproblight
   flatbuffers::Offset<PPLProtocol::ProtocolTensor> XTensorToProtocolTensor(flatbuffers::FlatBufferBuilder& builder, xt::xarray<double> xtensor);
 
   const PPLProtocol::Message* receiveMessage();
+
   void sendMessage(flatbuffers::Offset<PPLProtocol::Message> message);
+
+  std::string demangleAddress(std::string address);
+
+  std::string extractAddress();
 }
 
 #endif
