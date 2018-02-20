@@ -36,7 +36,7 @@ xt::xarray<double> forward(xt::xarray<double> observation)
 
 int main(int argc, char *argv[])
 {
-  cpproblight::Model model = cpproblight::Model(forward, "Gaussian with unkown mean (Marsaglia) C++");
+  cpproblight::Model model = cpproblight::Model(forward, "Gaussian with unkown mean (Marsaglia) with replacement C++");
   model.startServer();
   return 0;
 }
