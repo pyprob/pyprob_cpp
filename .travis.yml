@@ -5,8 +5,7 @@ notifications:
   email: false
 
 env:
-  - CC=gcc-5
-  - CXX=g++-5
+  - CC=gcc-5 && CXX=g++-5
 
 install:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
