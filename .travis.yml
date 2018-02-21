@@ -3,6 +3,7 @@ language: cpp
 
 install:
   - sudo apt-get install -y libzmq3-dev
+  - git clone --branch v1.8.0 https://github.com/google/flatbuffers.git && cd flatbuffers && cmake -G "Unix Makefiles" && sudo make install && cd ..
   - git clone --branch 0.4.0 https://github.com/QuantStack/xtl.git && cd xtl && cmake . && sudo make install && cd ..
 
 script:
