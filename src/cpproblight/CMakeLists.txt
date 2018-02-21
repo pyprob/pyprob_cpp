@@ -5,10 +5,7 @@ set (VERSION "0.1.0")
 add_library(cpproblight
   src/cpproblight.cpp)
 
-target_include_directories(cpproblight PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
-  PRIVATE src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_executable(test_gum test/test_gum.cpp)
 target_link_libraries(test_gum cpproblight zmq)
@@ -23,7 +20,8 @@ add_test(test_gum_1 test_gum)
 add_test(test_gum_marsaglia_1 test_gum_marsaglia)
 add_test(test_gum_marsaglia_replacement_1 test_gum_marsaglia_replacement)
 
-
+install (TARGETS cpproblight DESTINATION bin)
+install (FILES include/cpproblight.h DESTINATION include)
 
 # Get the current working branch
 execute_process(
@@ -42,6 +40,6 @@ execute_process(
 )
 
 configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/version.h.in
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/version.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/cpproblight.h.in
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/cpproblight.h
 )
