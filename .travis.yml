@@ -4,13 +4,10 @@ language: cpp
 notifications:
   email: false
 
-env:
-  - CC=gcc-5 && CXX=g++-5
-
 install:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo apt-get update
-  - sudo apt-get install gcc-5 g++-5 -y
+  - sudo apt-get install -y gcc-5 g++-5 -y && CC=gcc-5 && CXX=g++-5
   - sudo apt-get install -y libzmq3-dev
   - git clone --branch v1.8.0 https://github.com/google/flatbuffers.git && cd flatbuffers && cmake -G "Unix Makefiles" && sudo make install && cd ..
   - git clone --branch 0.4.0 https://github.com/QuantStack/xtl.git && cd xtl && cmake . && sudo make install && cd ..
