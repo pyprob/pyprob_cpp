@@ -9,8 +9,8 @@ RUN git clone --branch v1.8.0 https://github.com/google/flatbuffers.git && cd fl
 RUN git clone --branch 0.4.0 https://github.com/QuantStack/xtl.git && cd xtl && cmake . && make install
 RUN git clone --branch 0.15.4 https://github.com/QuantStack/xtensor.git && cd xtensor && cmake . && make install
 
-COPY ./src /code/cpproblight/src
-RUN cd /code/cpproblight && mkdir build && cd build && cmake ../src && cmake --build . && make install
+COPY . /code/cpproblight/
+RUN cd /code/cpproblight && mkdir -p build && cd build && cmake ../src && cmake --build . && make install
 
 ARG GIT_COMMIT="unknown"
 

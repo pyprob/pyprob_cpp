@@ -8,7 +8,7 @@
 
 #define VERSION "0.1.0"
 #define GIT_BRANCH "master"
-#define GIT_COMMIT_HASH "88e05e0"
+#define GIT_COMMIT_HASH "b529254"
 
 namespace cpproblight
 {
