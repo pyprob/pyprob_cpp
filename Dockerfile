@@ -5,9 +5,9 @@ ENV CXX=g++-5
 
 RUN apt-get update
 RUN apt-get install -y git cmake gcc-5 g++-5 libzmq3-dev
-RUN git clone --branch v1.8.0 https://github.com/google/flatbuffers.git && cd flatbuffers && cmake -G "Unix Makefiles" && make install && cd ..
-RUN git clone --branch 0.4.0 https://github.com/QuantStack/xtl.git && cd xtl && cmake . && make install && cd ..
-RUN git clone --branch 0.15.4 https://github.com/QuantStack/xtensor.git && cd xtensor && cmake . && make install && cd ..
+RUN git clone --branch v1.8.0 https://github.com/google/flatbuffers.git && cd flatbuffers && cmake -G "Unix Makefiles" && make install
+RUN git clone --branch 0.4.0 https://github.com/QuantStack/xtl.git && cd xtl && cmake . && make install
+RUN git clone --branch 0.15.4 https://github.com/QuantStack/xtensor.git && cd xtensor && cmake . && make install
 
 COPY ./src /code/cpproblight/src
 RUN cd /code/cpproblight && mkdir build && cd build && cmake ../src && cmake --build .
