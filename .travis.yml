@@ -3,6 +3,7 @@ language: cpp
 
 install:
   - sudo apt-get install -y libzmq3-dev
+  - git clone git@github.com:QuantStack/xtl.git && cd xtl && cmake && make install && cd ..
 
 script:
   - mkdir build && cd build
