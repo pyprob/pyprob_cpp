@@ -795,16 +795,18 @@ struct Normal FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_MEAN = 4,
     VT_STDDEV = 6
   };
-  double mean() const {
-    return GetField<double>(VT_MEAN, 0.0);
+  const ProtocolTensor *mean() const {
+    return GetPointer<const ProtocolTensor *>(VT_MEAN);
   }
-  double stddev() const {
-    return GetField<double>(VT_STDDEV, 0.0);
+  const ProtocolTensor *stddev() const {
+    return GetPointer<const ProtocolTensor *>(VT_STDDEV);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<double>(verifier, VT_MEAN) &&
-           VerifyField<double>(verifier, VT_STDDEV) &&
+           VerifyOffset(verifier, VT_MEAN) &&
+           verifier.VerifyTable(mean()) &&
+           VerifyOffset(verifier, VT_STDDEV) &&
+           verifier.VerifyTable(stddev()) &&
            verifier.EndTable();
   }
 };
@@ -812,11 +814,11 @@ struct Normal FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 struct NormalBuilder {
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_mean(double mean) {
-    fbb_.AddElement<double>(Normal::VT_MEAN, mean, 0.0);
+  void add_mean(flatbuffers::Offset<ProtocolTensor> mean) {
+    fbb_.AddOffset(Normal::VT_MEAN, mean);
   }
-  void add_stddev(double stddev) {
-    fbb_.AddElement<double>(Normal::VT_STDDEV, stddev, 0.0);
+  void add_stddev(flatbuffers::Offset<ProtocolTensor> stddev) {
+    fbb_.AddOffset(Normal::VT_STDDEV, stddev);
   }
   explicit NormalBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -832,8 +834,8 @@ struct NormalBuilder {
 
 inline flatbuffers::Offset<Normal> CreateNormal(
     flatbuffers::FlatBufferBuilder &_fbb,
-    double mean = 0.0,
-    double stddev = 0.0) {
+    flatbuffers::Offset<ProtocolTensor> mean = 0,
+    flatbuffers::Offset<ProtocolTensor> stddev = 0) {
   NormalBuilder builder_(_fbb);
   builder_.add_stddev(stddev);
   builder_.add_mean(mean);
