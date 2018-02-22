@@ -62,15 +62,15 @@ namespace cpproblight
       return;
     }
 
-    Normal::Normal(double mean, double stddev)
+    Normal::Normal(xt::xarray<double> mean, xt::xarray<double> stddev)
     {
       this->mean = mean;
       this->stddev = stddev;
     }
     xt::xarray<double> Normal::sample(const bool control, const bool replace, const std::string& address)
     {
-      auto mean = XTensorToProtocolTensor(builder, xt::xarray<double> {this->mean});
-      auto stddev = XTensorToProtocolTensor(builder, xt::xarray<double> {this->stddev});
+      auto mean = XTensorToProtocolTensor(builder, this->mean);
+      auto stddev = XTensorToProtocolTensor(builder, this->stddev);
       auto normal = PPLProtocol::CreateNormal(builder, mean, stddev);
       auto sample = PPLProtocol::CreateSampleDirect(builder, address.c_str(), PPLProtocol::Distribution_Normal, normal.Union(), control, replace);
       auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Sample, sample.Union());
@@ -92,7 +92,7 @@ namespace cpproblight
     {
       auto val = XTensorToProtocolTensor(builder, value);
       auto mean = XTensorToProtocolTensor(builder, xt::xarray<double> {this->mean});
-      auto stddev = XTensorToProtocolTensor(builder, xt::xarray<double> {this->stddev});      
+      auto stddev = XTensorToProtocolTensor(builder, xt::xarray<double> {this->stddev});
       auto normal = PPLProtocol::CreateNormal(builder, mean, stddev);
       auto observe = PPLProtocol::CreateObserve(builder, PPLProtocol::Distribution_Normal, normal.Union(), val);
       auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Observe, observe.Union());

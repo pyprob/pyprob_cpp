@@ -8,7 +8,7 @@
 
 #define VERSION "0.1.0"
 #define GIT_BRANCH "master"
-#define GIT_COMMIT_HASH "92ffac1"
+#define GIT_COMMIT_HASH "0faa82d"
 
 namespace cpproblight
 {
@@ -36,11 +36,11 @@ namespace cpproblight
     class Normal: public Distribution
     {
     private:
-      double mean;
-      double stddev;
+      xt::xarray<double> mean;
+      xt::xarray<double> stddev;
 
     public:
-      Normal(double mean=0, double stddev=1);
+      Normal(xt::xarray<double> mean=xt::xarray<double> {0}, xt::xarray<double> stddev=xt::xarray<double> {1});
       xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
       void observe(xt::xarray<double> value);
     };
