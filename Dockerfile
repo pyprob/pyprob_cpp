@@ -10,7 +10,7 @@ RUN git clone --branch 0.4.0 https://github.com/QuantStack/xtl.git && cd xtl && 
 RUN git clone --branch 0.15.4 https://github.com/QuantStack/xtensor.git && cd xtensor && cmake . && make install
 
 COPY . /code/cpproblight/
-RUN cd /code/cpproblight && mkdir -p build && cd build && cmake ../src && cmake --build . && make install
+RUN cd /code/cpproblight && rm -rf build && mkdir build && cd build && cmake ../src && cmake --build . && make install
 
 ARG GIT_COMMIT="unknown"
 
