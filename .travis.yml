@@ -23,15 +23,18 @@ script:
   - cd ..
 
 after_success:
-    - if [[ "$TRAVIS_BRANCH" == "master" ]]; then
-          GIT_COMMIT="$(git rev-parse HEAD)" ;
-          echo $GIT_COMMIT ;
-          docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ;
-          docker build -t probprog/cpproblight --build-arg GIT_COMMIT=$GIT_COMMIT . ;
-          docker tag probprog/cpproblight probprog/cpproblight:latest ;
-          docker push probprog/cpproblight:latest ;
-          if [[ -n "$TRAVIS_TAG" ]]; then
-            docker tag probprog/cpproblight probprog/cpproblight:$TRAVIS_TAG ;
-            docker push probprog/cpproblight:$TRAVIS_TAG ;
-          fi
+  - export CURRENT_BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
+  - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH, PR=$PR, CURRENT_BRANCH=$CURRENT_BRANCH"
+  - echo "TRAVIS_TAG=$TRAVIS_TAG"
+  - if [[ "$CURRENT_BRANCH" == "master" ]]; then
+      GIT_COMMIT="$(git rev-parse HEAD)" ;
+      echo $GIT_COMMIT ;
+      docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ;
+      docker build -t probprog/cpproblight --build-arg GIT_COMMIT=$GIT_COMMIT . ;
+      docker tag probprog/cpproblight probprog/cpproblight:latest ;
+      docker push probprog/cpproblight:latest ;
+      if [[ -n "$TRAVIS_TAG" ]]; then
+        docker tag probprog/cpproblight probprog/cpproblight:$TRAVIS_TAG ;
+        docker push probprog/cpproblight:$TRAVIS_TAG ;
       fi
+    fi
