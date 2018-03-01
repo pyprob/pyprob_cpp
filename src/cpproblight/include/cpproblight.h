@@ -3,12 +3,12 @@
 #include <string>
 #include "xtensor/xarray.hpp"
 #include "xtensor/xio.hpp"
-#include "pplprotocol_generated.h"
+#include "pplprotocol.h"
 #include <zmq.hpp>
 
 #define VERSION "0.1.0"
 #define GIT_BRANCH "master"
-#define GIT_COMMIT_HASH "0faa82d"
+#define GIT_COMMIT_HASH "cd35d39"
 
 namespace cpproblight
 {

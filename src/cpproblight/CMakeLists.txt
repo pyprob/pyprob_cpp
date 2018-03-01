@@ -21,7 +21,7 @@ add_test(test_gum_marsaglia_1 test_gum_marsaglia)
 add_test(test_gum_marsaglia_replacement_1 test_gum_marsaglia_replacement)
 
 install (TARGETS cpproblight DESTINATION bin)
-install (FILES include/cpproblight.h DESTINATION include)
+install (FILES include/cpproblight.h include/pplprotocol.h DESTINATION include)
 
 # Get the current working branch
 execute_process(
