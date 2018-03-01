@@ -6,6 +6,9 @@ add_library(cpproblight SHARED src/cpproblight.cpp)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+add_executable(test_local_sample test/test_local_sample.cpp)
+target_link_libraries(test_local_sample cpproblight zmq)
+
 add_executable(test_gum test/test_gum.cpp)
 target_link_libraries(test_gum cpproblight zmq)
 
@@ -15,6 +18,7 @@ target_link_libraries(test_gum_marsaglia cpproblight zmq)
 add_executable(test_gum_marsaglia_replacement test/test_gum_marsaglia_replacement.cpp)
 target_link_libraries(test_gum_marsaglia_replacement cpproblight zmq)
 
+add_test(test_local_sample_1 test_local_sample)
 add_test(test_gum_1 test_gum)
 add_test(test_gum_marsaglia_1 test_gum_marsaglia)
 add_test(test_gum_marsaglia_replacement_1 test_gum_marsaglia_replacement)

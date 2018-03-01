@@ -7,12 +7,14 @@
 #include <cstdlib>
 #include <locale.h>
 #include <execinfo.h>
+#include <random>
 
 
 namespace cpproblight
 {
   zmq::context_t zmqContext = zmq::context_t(1);
   zmq::socket_t zmqSocket = zmq::socket_t(zmqContext, ZMQ_REP);
+  bool zmqSocketConnected = false;
   flatbuffers::FlatBufferBuilder builder;
 
   namespace distributions
@@ -33,6 +35,13 @@ namespace cpproblight
     }
     xt::xarray<double> Uniform::sample(const bool control, const bool replace, const std::string& address)
     {
+      if (!zmqSocketConnected)
+      {
+        printf("Protocol (C++): Warning: Not connected, sampling locally.\n");
+        std::default_random_engine generator;
+        auto res = std::uniform_real_distribution<double>(this->low, this->high)(generator);
+        return res;
+      }
       auto uniform = PPLProtocol::CreateUniform(builder, this->low, this->high);
       auto sample = PPLProtocol::CreateSampleDirect(builder, address.c_str(), PPLProtocol::Distribution_Uniform, uniform.Union(), control, replace);
       auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Sample, sample.Union());
@@ -52,6 +61,11 @@ namespace cpproblight
     }
     void Uniform::observe(xt::xarray<double> value)
     {
+      if (!zmqSocketConnected)
+      {
+        printf("Protocol (C++): Warning: Not connected, observing locally.\n");
+        return;
+      }
       auto val = XTensorToProtocolTensor(builder, value);
       auto uniform = PPLProtocol::CreateUniform(builder, this->low, this->high);
       auto observe = PPLProtocol::CreateObserve(builder, PPLProtocol::Distribution_Uniform, uniform.Union(), val);
@@ -69,6 +83,20 @@ namespace cpproblight
     }
     xt::xarray<double> Normal::sample(const bool control, const bool replace, const std::string& address)
     {
+      if (!zmqSocketConnected)
+      {
+        printf("Protocol (C++): Warning: Not connected, sampling locally.\n");
+        std::default_random_engine generator;
+        auto n = this->mean.size();
+        xt::xarray<double> res = xt::xarray<double>(n);
+        for (size_t i = 0; i < n; i++)
+        {
+          auto mean = this->mean(i);
+          auto stddev = this->stddev(i);
+          res(i) = std::normal_distribution<double>(mean, stddev)(generator);
+        }
+        return res;
+      }
       auto mean = XTensorToProtocolTensor(builder, this->mean);
       auto stddev = XTensorToProtocolTensor(builder, this->stddev);
       auto normal = PPLProtocol::CreateNormal(builder, mean, stddev);
@@ -90,6 +118,11 @@ namespace cpproblight
     }
     void Normal::observe(xt::xarray<double> value)
     {
+      if (!zmqSocketConnected)
+      {
+        printf("Protocol (C++): Warning: Not connected, observing locally.\n");
+        return;
+      }
       auto val = XTensorToProtocolTensor(builder, value);
       auto mean = XTensorToProtocolTensor(builder, xt::xarray<double> {this->mean});
       auto stddev = XTensorToProtocolTensor(builder, xt::xarray<double> {this->stddev});
@@ -117,6 +150,7 @@ namespace cpproblight
   {
     this->serverAddress = serverAddress;
     zmqSocket.bind(serverAddress.c_str());
+    zmqSocketConnected = true;
     printf("Protocol (C++): ZMQ_REP server listening at %s\n", this->serverAddress.c_str());
     printf("Protocol (C++): this system: %s\n", this->systemName.c_str());
     printf("Protocol (C++): model name : %s\n", this->modelName.c_str());
