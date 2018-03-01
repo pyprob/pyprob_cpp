@@ -2,8 +2,7 @@ project(libcpproblight VERSION 0.1 LANGUAGES CXX)
 
 set (VERSION "0.1.0")
 
-add_library(cpproblight
-  src/cpproblight.cpp)
+add_library(cpproblight SHARED src/cpproblight.cpp)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
