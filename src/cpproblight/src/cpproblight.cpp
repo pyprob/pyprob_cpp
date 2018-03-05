@@ -47,7 +47,9 @@ namespace cpproblight
       auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Sample, sample.Union());
       sendMessage(message_request);
 
-      auto message_reply = receiveMessage();
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      auto message_reply = PPLProtocol::GetMessage(request.data());
       if (message_reply->body_type() == PPLProtocol::MessageBody_SampleResult)
       {
         auto result = ProtocolTensorToXTensor(message_reply->body_as_SampleResult()->result());
@@ -72,7 +74,9 @@ namespace cpproblight
       auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Observe, observe.Union());
       sendMessage(message_request);
 
-      auto message_reply = receiveMessage();
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      // auto message_reply = PPLProtocol::GetMessage(request.data());
       return;
     }
 
@@ -104,7 +108,9 @@ namespace cpproblight
       auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Sample, sample.Union());
       sendMessage(message_request);
 
-      auto message_reply = receiveMessage();
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      auto message_reply = PPLProtocol::GetMessage(request.data());
       if (message_reply->body_type() == PPLProtocol::MessageBody_SampleResult)
       {
         auto result = ProtocolTensorToXTensor(message_reply->body_as_SampleResult()->result());
@@ -131,7 +137,9 @@ namespace cpproblight
       auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Observe, observe.Union());
       sendMessage(message_request);
 
-      auto message_reply = receiveMessage();
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      // auto message_reply = PPLProtocol::GetMessage(request.data());
       return;
     }
   }
@@ -158,7 +166,9 @@ namespace cpproblight
     int traces = 0;
     while(true)
     {
-      auto message = receiveMessage();
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      auto message = PPLProtocol::GetMessage(request.data());
       if (message->body_type() == PPLProtocol::MessageBody_Run)
       {
         printf("Executed traces: %'d\r", ++traces);
@@ -222,14 +232,6 @@ namespace cpproblight
     auto shape = std::vector<int32_t>(xtensor.shape().begin(), xtensor.shape().end());
     auto data = std::vector<double>(xtensor.data().begin(), xtensor.data().end());
     return PPLProtocol::CreateProtocolTensorDirect(builder, &data, &shape);
-  }
-
-  const PPLProtocol::Message* receiveMessage()
-  {
-    zmq::message_t request;
-    zmqSocket.recv(&request);
-
-    return PPLProtocol::GetMessage(request.data());
   }
 
   void sendMessage(flatbuffers::Offset<PPLProtocol::Message> message)

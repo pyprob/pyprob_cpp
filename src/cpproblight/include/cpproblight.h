@@ -8,7 +8,7 @@
 
 #define VERSION "0.1.0"
 #define GIT_BRANCH "master"
-#define GIT_COMMIT_HASH "d331dcf"
+#define GIT_COMMIT_HASH "fd6b5a4"
 
 namespace cpproblight
 {
@@ -66,8 +66,6 @@ namespace cpproblight
   xt::xarray<double> ProtocolTensorToXTensor(const PPLProtocol::ProtocolTensor* protocolTensor);
 
   flatbuffers::Offset<PPLProtocol::ProtocolTensor> XTensorToProtocolTensor(flatbuffers::FlatBufferBuilder& builder, xt::xarray<double> xtensor);
-
-  const PPLProtocol::Message* receiveMessage();
 
   void sendMessage(flatbuffers::Offset<PPLProtocol::Message> message);
 
