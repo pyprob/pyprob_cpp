@@ -23,7 +23,7 @@ namespace cpproblight
     {
       return xt::xarray<double> {0};
     }
-    void Distribution::observe(xt::xarray<double> value)
+    void Distribution::observe(xt::xarray<double> value, const std::string& address)
     {
       return;
     }
@@ -61,7 +61,7 @@ namespace cpproblight
         std::exit(EXIT_FAILURE);
       }
     }
-    void Uniform::observe(xt::xarray<double> value)
+    void Uniform::observe(xt::xarray<double> value, const std::string& address)
     {
       if (!zmqSocketConnected)
       {
@@ -70,7 +70,7 @@ namespace cpproblight
       }
       auto val = XTensorToProtocolTensor(builder, value);
       auto uniform = PPLProtocol::CreateUniform(builder, this->low, this->high);
-      auto observe = PPLProtocol::CreateObserve(builder, PPLProtocol::Distribution_Uniform, uniform.Union(), val);
+      auto observe = PPLProtocol::CreateObserveDirect(builder, address.c_str(), PPLProtocol::Distribution_Uniform, uniform.Union(), val);
       auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Observe, observe.Union());
       sendMessage(message_request);
 
@@ -122,7 +122,7 @@ namespace cpproblight
         std::exit(EXIT_FAILURE);
       }
     }
-    void Normal::observe(xt::xarray<double> value)
+    void Normal::observe(xt::xarray<double> value, const std::string& address)
     {
       if (!zmqSocketConnected)
       {
@@ -133,7 +133,7 @@ namespace cpproblight
       auto mean = XTensorToProtocolTensor(builder, xt::xarray<double> {this->mean});
       auto stddev = XTensorToProtocolTensor(builder, xt::xarray<double> {this->stddev});
       auto normal = PPLProtocol::CreateNormal(builder, mean, stddev);
-      auto observe = PPLProtocol::CreateObserve(builder, PPLProtocol::Distribution_Normal, normal.Union(), val);
+      auto observe = PPLProtocol::CreateObserveDirect(builder, address.c_str(), PPLProtocol::Distribution_Normal, normal.Union(), val);
       auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Observe, observe.Union());
       sendMessage(message_request);
 
@@ -209,9 +209,16 @@ namespace cpproblight
     }
   }
 
-  void observe(distributions::Distribution& distribution, xt::xarray<double> value)
+  void observe(distributions::Distribution& distribution, xt::xarray<double> value, const std::string& address)
   {
-    return distribution.observe(value);
+    if (address.length() == 0)
+    {
+      return distribution.observe(value, extractAddress());
+    }
+    else
+    {
+      return distribution.observe(value, address);
+    }
   }
 
   xt::xarray<double> ProtocolTensorToXTensor(const PPLProtocol::ProtocolTensor* protocolTensor)

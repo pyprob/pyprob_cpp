@@ -687,10 +687,14 @@ inline flatbuffers::Offset<SampleResult> CreateSampleResult(
 
 struct Observe FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   enum {
-    VT_DISTRIBUTION_TYPE = 4,
-    VT_DISTRIBUTION = 6,
-    VT_VALUE = 8
+    VT_ADDRESS = 4,
+    VT_DISTRIBUTION_TYPE = 6,
+    VT_DISTRIBUTION = 8,
+    VT_VALUE = 10
   };
+  const flatbuffers::String *address() const {
+    return GetPointer<const flatbuffers::String *>(VT_ADDRESS);
+  }
   Distribution distribution_type() const {
     return static_cast<Distribution>(GetField<uint8_t>(VT_DISTRIBUTION_TYPE, 0));
   }
@@ -709,6 +713,8 @@ struct Observe FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_ADDRESS) &&
+           verifier.Verify(address()) &&
            VerifyField<uint8_t>(verifier, VT_DISTRIBUTION_TYPE) &&
            VerifyOffset(verifier, VT_DISTRIBUTION) &&
            VerifyDistribution(verifier, distribution(), distribution_type()) &&
@@ -729,6 +735,9 @@ template<> inline const Uniform *Observe::distribution_as<Uniform>() const {
 struct ObserveBuilder {
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
+  void add_address(flatbuffers::Offset<flatbuffers::String> address) {
+    fbb_.AddOffset(Observe::VT_ADDRESS, address);
+  }
   void add_distribution_type(Distribution distribution_type) {
     fbb_.AddElement<uint8_t>(Observe::VT_DISTRIBUTION_TYPE, static_cast<uint8_t>(distribution_type), 0);
   }
@@ -752,14 +761,30 @@ struct ObserveBuilder {
 
 inline flatbuffers::Offset<Observe> CreateObserve(
     flatbuffers::FlatBufferBuilder &_fbb,
+    flatbuffers::Offset<flatbuffers::String> address = 0,
     Distribution distribution_type = Distribution_NONE,
     flatbuffers::Offset<void> distribution = 0,
     flatbuffers::Offset<ProtocolTensor> value = 0) {
   ObserveBuilder builder_(_fbb);
   builder_.add_value(value);
   builder_.add_distribution(distribution);
+  builder_.add_address(address);
   builder_.add_distribution_type(distribution_type);
   return builder_.Finish();
+}
+
+inline flatbuffers::Offset<Observe> CreateObserveDirect(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    const char *address = nullptr,
+    Distribution distribution_type = Distribution_NONE,
+    flatbuffers::Offset<void> distribution = 0,
+    flatbuffers::Offset<ProtocolTensor> value = 0) {
+  return PPLProtocol::CreateObserve(
+      _fbb,
+      address ? _fbb.CreateString(address) : 0,
+      distribution_type,
+      distribution,
+      value);
 }
 
 struct ObserveResult FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {

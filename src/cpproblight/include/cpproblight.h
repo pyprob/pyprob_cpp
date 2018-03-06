@@ -8,7 +8,7 @@
 
 #define VERSION "0.1.0"
 #define GIT_BRANCH "master"
-#define GIT_COMMIT_HASH "fd6b5a4"
+#define GIT_COMMIT_HASH "9891120"
 
 namespace cpproblight
 {
@@ -18,7 +18,7 @@ namespace cpproblight
     {
     public:
       virtual xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
-      virtual void observe(xt::xarray<double> value);
+      virtual void observe(xt::xarray<double> value, const std::string& address);
     };
 
     class Uniform: public Distribution
@@ -30,7 +30,7 @@ namespace cpproblight
     public:
       Uniform(double low=0, double high=1);
       xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
-      void observe(xt::xarray<double> value);
+      void observe(xt::xarray<double> value, const std::string& address);
     };
 
     class Normal: public Distribution
@@ -42,7 +42,7 @@ namespace cpproblight
     public:
       Normal(xt::xarray<double> mean=xt::xarray<double> {0}, xt::xarray<double> stddev=xt::xarray<double> {1});
       xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
-      void observe(xt::xarray<double> value);
+      void observe(xt::xarray<double> value, const std::string& address);
     };
   }
 
@@ -61,7 +61,7 @@ namespace cpproblight
 
   xt::xarray<double> sample(distributions::Distribution& distribution, const bool control=true, const bool replace=false, const std::string& address="");
 
-  void observe(distributions::Distribution& distribution, xt::xarray<double> value);
+  void observe(distributions::Distribution& distribution, xt::xarray<double> value, const std::string& address="");
 
   xt::xarray<double> ProtocolTensorToXTensor(const PPLProtocol::ProtocolTensor* protocolTensor);
 
