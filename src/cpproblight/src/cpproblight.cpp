@@ -37,7 +37,7 @@ namespace cpproblight
     {
       if (!zmqSocketConnected)
       {
-        printf("Protocol (C++): Warning: Not connected, sampling locally.\n");
+        printf("PPLProtocol (C++): Warning: Not connected, sampling locally.\n");
         std::default_random_engine generator;
         auto res = std::uniform_real_distribution<double>(this->low, this->high)(generator);
         return res;
@@ -65,7 +65,7 @@ namespace cpproblight
     {
       if (!zmqSocketConnected)
       {
-        printf("Protocol (C++): Warning: Not connected, observing locally.\n");
+        printf("PPLProtocol (C++): Warning: Not connected, observing locally.\n");
         return;
       }
       auto val = XTensorToProtocolTensor(builder, value);
@@ -89,7 +89,7 @@ namespace cpproblight
     {
       if (!zmqSocketConnected)
       {
-        printf("Protocol (C++): Warning: Not connected, sampling locally.\n");
+        printf("PPLProtocol (C++): Warning: Not connected, sampling locally.\n");
         std::default_random_engine generator;
         auto n = this->mean.size();
         xt::xarray<double> res = xt::xarray<double>(n);
@@ -126,7 +126,7 @@ namespace cpproblight
     {
       if (!zmqSocketConnected)
       {
-        printf("Protocol (C++): Warning: Not connected, observing locally.\n");
+        printf("PPLProtocol (C++): Warning: Not connected, observing locally.\n");
         return;
       }
       auto val = XTensorToProtocolTensor(builder, value);
@@ -159,9 +159,9 @@ namespace cpproblight
     this->serverAddress = serverAddress;
     zmqSocket.bind(serverAddress.c_str());
     zmqSocketConnected = true;
-    printf("Protocol (C++): ZMQ_REP server listening at %s\n", this->serverAddress.c_str());
-    printf("Protocol (C++): this system: %s\n", this->systemName.c_str());
-    printf("Protocol (C++): model name : %s\n", this->modelName.c_str());
+    printf("PPLProtocol (C++): ZMQ_REP server listening at %s\n", this->serverAddress.c_str());
+    printf("PPLProtocol (C++): this system: %s\n", this->systemName.c_str());
+    printf("PPLProtocol (C++): model name : %s\n", this->modelName.c_str());
 
     int traces = 0;
     while(true)
@@ -184,7 +184,7 @@ namespace cpproblight
       else if (message->body_type() == PPLProtocol::MessageBody_Handshake)
       {
         auto systemName = message->body_as_Handshake()->system_name()->str();
-        printf("Protocol (C++): connected to PPL system: %s\n", systemName.c_str());
+        printf("PPLProtocol (C++): connected to PPL system: %s\n", systemName.c_str());
         auto handshakeResult = PPLProtocol::CreateHandshakeResultDirect(builder, this->systemName.c_str(), this->modelName.c_str());
         auto message = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_HandshakeResult, handshakeResult.Union());
         sendMessage(message);
