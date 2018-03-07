@@ -28,6 +28,8 @@ struct Observe;
 
 struct ObserveResult;
 
+struct Reset;
+
 struct Normal;
 
 struct Uniform;
@@ -42,11 +44,12 @@ enum MessageBody {
   MessageBody_SampleResult = 6,
   MessageBody_Observe = 7,
   MessageBody_ObserveResult = 8,
+  MessageBody_Reset = 9,
   MessageBody_MIN = MessageBody_NONE,
-  MessageBody_MAX = MessageBody_ObserveResult
+  MessageBody_MAX = MessageBody_Reset
 };
 
-inline MessageBody (&EnumValuesMessageBody())[9] {
+inline MessageBody (&EnumValuesMessageBody())[10] {
   static MessageBody values[] = {
     MessageBody_NONE,
     MessageBody_Handshake,
@@ -56,7 +59,8 @@ inline MessageBody (&EnumValuesMessageBody())[9] {
     MessageBody_Sample,
     MessageBody_SampleResult,
     MessageBody_Observe,
-    MessageBody_ObserveResult
+    MessageBody_ObserveResult,
+    MessageBody_Reset
   };
   return values;
 }
@@ -72,6 +76,7 @@ inline const char **EnumNamesMessageBody() {
     "SampleResult",
     "Observe",
     "ObserveResult",
+    "Reset",
     nullptr
   };
   return names;
@@ -116,6 +121,10 @@ template<> struct MessageBodyTraits<Observe> {
 
 template<> struct MessageBodyTraits<ObserveResult> {
   static const MessageBody enum_value = MessageBody_ObserveResult;
+};
+
+template<> struct MessageBodyTraits<Reset> {
+  static const MessageBody enum_value = MessageBody_Reset;
 };
 
 bool VerifyMessageBody(flatbuffers::Verifier &verifier, const void *obj, MessageBody type);
@@ -204,6 +213,9 @@ struct Message FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const ObserveResult *body_as_ObserveResult() const {
     return body_type() == MessageBody_ObserveResult ? static_cast<const ObserveResult *>(body()) : nullptr;
   }
+  const Reset *body_as_Reset() const {
+    return body_type() == MessageBody_Reset ? static_cast<const Reset *>(body()) : nullptr;
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_BODY_TYPE) &&
@@ -243,6 +255,10 @@ template<> inline const Observe *Message::body_as<Observe>() const {
 
 template<> inline const ObserveResult *Message::body_as<ObserveResult>() const {
   return body_as_ObserveResult();
+}
+
+template<> inline const Reset *Message::body_as<Reset>() const {
+  return body_as_Reset();
 }
 
 struct MessageBuilder {
@@ -815,6 +831,34 @@ inline flatbuffers::Offset<ObserveResult> CreateObserveResult(
   return builder_.Finish();
 }
 
+struct Reset FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           verifier.EndTable();
+  }
+};
+
+struct ResetBuilder {
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  explicit ResetBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ResetBuilder &operator=(const ResetBuilder &);
+  flatbuffers::Offset<Reset> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<Reset>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<Reset> CreateReset(
+    flatbuffers::FlatBufferBuilder &_fbb) {
+  ResetBuilder builder_(_fbb);
+  return builder_.Finish();
+}
+
 struct Normal FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   enum {
     VT_MEAN = 4,
@@ -952,6 +996,10 @@ inline bool VerifyMessageBody(flatbuffers::Verifier &verifier, const void *obj, 
     }
     case MessageBody_ObserveResult: {
       auto ptr = reinterpret_cast<const ObserveResult *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case MessageBody_Reset: {
+      auto ptr = reinterpret_cast<const Reset *>(obj);
       return verifier.VerifyTable(ptr);
     }
     default: return false;

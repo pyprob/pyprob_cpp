@@ -57,7 +57,7 @@ namespace cpproblight
       }
       else
       {
-        printf("Error: protocol received an unexpected request.\n");
+        printf("PPLProtocol (C++): Error: Received an unexpected request. Cannot recover.\n");
         std::exit(EXIT_FAILURE);
       }
     }
@@ -118,7 +118,7 @@ namespace cpproblight
       }
       else
       {
-        printf("Error: protocol received an unexpected request.\n");
+        printf("PPLProtocol (C++): Error: Received an unexpected request. Cannot recover.\n");
         std::exit(EXIT_FAILURE);
       }
     }
@@ -160,8 +160,8 @@ namespace cpproblight
     zmqSocket.bind(serverAddress.c_str());
     zmqSocketConnected = true;
     printf("PPLProtocol (C++): ZMQ_REP server listening at %s\n", this->serverAddress.c_str());
-    printf("PPLProtocol (C++): this system: %s\n", this->systemName.c_str());
-    printf("PPLProtocol (C++): model name : %s\n", this->modelName.c_str());
+    printf("PPLProtocol (C++): This system: %s\n", this->systemName.c_str());
+    printf("PPLProtocol (C++): Model name : %s\n", this->modelName.c_str());
 
     int traces = 0;
     while(true)
@@ -171,7 +171,7 @@ namespace cpproblight
       auto message = PPLProtocol::GetMessage(request.data());
       if (message->body_type() == PPLProtocol::MessageBody_Run)
       {
-        printf("Executed traces: %'d\r", ++traces);
+        printf("PPLProtocol (C++): Executed traces: %'d\r", ++traces);
         std::cout.flush();
 
         auto observation = ProtocolTensorToXTensor(message->body_as_Run()->observation());
@@ -184,15 +184,17 @@ namespace cpproblight
       else if (message->body_type() == PPLProtocol::MessageBody_Handshake)
       {
         auto systemName = message->body_as_Handshake()->system_name()->str();
-        printf("PPLProtocol (C++): connected to PPL system: %s\n", systemName.c_str());
+        printf("PPLProtocol (C++): Connected to PPL system: %s\n", systemName.c_str());
         auto handshakeResult = PPLProtocol::CreateHandshakeResultDirect(builder, this->systemName.c_str(), this->modelName.c_str());
         auto message = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_HandshakeResult, handshakeResult.Union());
         sendMessage(message);
       }
       else
       {
-        printf("Error: protocol received an unexpected request.\n");
-        std::exit(EXIT_FAILURE);
+        printf("PPLProtocol (C++): Error: Received an unexpected request. Resetting...\n");
+        auto reset = PPLProtocol::CreateReset(builder);
+        auto message = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Reset, reset.Union());
+        sendMessage(message);
       }
     }
   }
