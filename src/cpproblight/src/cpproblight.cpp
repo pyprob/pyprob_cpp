@@ -16,6 +16,8 @@ namespace cpproblight
   zmq::socket_t zmqSocket = zmq::socket_t(zmqContext, ZMQ_REP);
   bool zmqSocketConnected = false;
   flatbuffers::FlatBufferBuilder builder;
+  bool controlDefault = true;
+  bool replaceDefault = false;
 
   namespace distributions
   {
@@ -199,28 +201,42 @@ namespace cpproblight
     }
   }
 
+  xt::xarray<double> sample(distributions::Distribution& distribution)
+  {
+    auto address = extractAddress();
+    return distribution.sample(controlDefault, replaceDefault, address);
+  }
+
+  xt::xarray<double> sample(distributions::Distribution& distribution, const std::string& address)
+  {
+    return distribution.sample(controlDefault, replaceDefault, address);
+  }
+
+  xt::xarray<double> sample(distributions::Distribution& distribution, const bool control, const bool replace)
+  {
+    auto address = extractAddress();
+    return distribution.sample(control, replace, address);
+  }
+
   xt::xarray<double> sample(distributions::Distribution& distribution, const bool control, const bool replace, const std::string& address)
   {
-    if (address.length() == 0)
-    {
-      return distribution.sample(control, replace, extractAddress());
-    }
-    else
-    {
-      return distribution.sample(control, replace, address);
-    }
+    return distribution.sample(control, replace, address);
   }
 
   void observe(distributions::Distribution& distribution, xt::xarray<double> value, const std::string& address)
   {
-    if (address.length() == 0)
+    auto addr = address;
+    if (addr.length() == 0)
     {
-      return distribution.observe(value, extractAddress());
+      addr = extractAddress();
     }
-    else
-    {
-      return distribution.observe(value, address);
-    }
+    return distribution.observe(value, addr);
+  }
+
+  void setDefault(bool control, bool replace)
+  {
+    controlDefault = control;
+    replaceDefault = replace;
   }
 
   xt::xarray<double> ProtocolTensorToXTensor(const PPLProtocol::ProtocolTensor* protocolTensor)

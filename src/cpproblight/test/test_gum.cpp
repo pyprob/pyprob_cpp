@@ -10,7 +10,7 @@ xt::xarray<double> forward(xt::xarray<double> observation)
   auto prior = cpproblight::distributions::Normal(prior_mean, prior_stddev);
   auto mu = cpproblight::sample(prior);
 
-  auto likelihood = cpproblight::distributions::Normal(mu(0), likelihood_stddev);
+  auto likelihood = cpproblight::distributions::Normal(mu, likelihood_stddev);
   for (auto & o : observation)
   {
     cpproblight::observe(likelihood, o);
