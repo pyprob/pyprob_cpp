@@ -8,7 +8,7 @@
 
 #define VERSION "0.1.0"
 #define GIT_BRANCH "master"
-#define GIT_COMMIT_HASH "5987556"
+#define GIT_COMMIT_HASH "8b946d7"
 
 namespace cpproblight
 {
@@ -65,7 +65,8 @@ namespace cpproblight
   xt::xarray<double> sample(distributions::Distribution& distribution, const bool control, const bool replace, const std::string& address);
   void observe(distributions::Distribution& distribution, xt::xarray<double> value, const std::string& address="");
 
-  void setDefault(bool control = true, bool replace = false);
+  void setDefaultControl(bool control = true);
+  void setDefaultReplace(bool replace = false);
 
   xt::xarray<double> ProtocolTensorToXTensor(const PPLProtocol::ProtocolTensor* protocolTensor);
 
