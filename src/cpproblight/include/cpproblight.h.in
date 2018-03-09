@@ -50,12 +50,13 @@ namespace cpproblight
   {
   private:
     xt::xarray<double> (*modelFunction)(xt::xarray<double>);
+    xt::xarray<double> defaultObservation;
     std::string serverAddress;
     std::string modelName;
     std::string systemName;
 
   public:
-    Model(xt::xarray<double> (*modelFunction)(xt::xarray<double>), const std::string& modelName = "Unnamed cpproblight C++ model");
+    Model(xt::xarray<double> (*modelFunction)(xt::xarray<double>), xt::xarray<double> defaultObservation, const std::string& modelName);
     void startServer(const std::string& serverAddress = "tcp://*:5555");
   };
 

@@ -41,7 +41,7 @@ xt::xarray<double> forward(xt::xarray<double> observation)
 int main(int argc, char *argv[])
 {
   auto serverAddress = (argc > 1) ? argv[1] : "tcp://*:5555";
-  cpproblight::Model model = cpproblight::Model(forward, "Set defaults and addresses test C++");
+  cpproblight::Model model = cpproblight::Model(forward, xt::xarray<double> {}, "Set defaults and addresses test C++");
   model.startServer(serverAddress);
   return 0;
 }

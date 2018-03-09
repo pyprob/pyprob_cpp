@@ -8,7 +8,7 @@
 
 #define VERSION "0.1.0"
 #define GIT_BRANCH "master"
-#define GIT_COMMIT_HASH "8b946d7"
+#define GIT_COMMIT_HASH "47d7e4f"
 
 namespace cpproblight
 {
@@ -50,12 +50,13 @@ namespace cpproblight
   {
   private:
     xt::xarray<double> (*modelFunction)(xt::xarray<double>);
+    xt::xarray<double> defaultObservation;
     std::string serverAddress;
     std::string modelName;
     std::string systemName;
 
   public:
-    Model(xt::xarray<double> (*modelFunction)(xt::xarray<double>), const std::string& modelName = "Unnamed cpproblight C++ model");
+    Model(xt::xarray<double> (*modelFunction)(xt::xarray<double>), xt::xarray<double> defaultObservation, const std::string& modelName);
     void startServer(const std::string& serverAddress = "tcp://*:5555");
   };
 

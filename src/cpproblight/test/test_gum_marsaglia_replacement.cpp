@@ -37,7 +37,7 @@ xt::xarray<double> forward(xt::xarray<double> observation)
 int main(int argc, char *argv[])
 {
   auto serverAddress = (argc > 1) ? argv[1] : "tcp://*:5555";
-  cpproblight::Model model = cpproblight::Model(forward, "Gaussian with unkown mean (Marsaglia) with replacement C++");
+  cpproblight::Model model = cpproblight::Model(forward, xt::xarray<double> {}, "Gaussian with unkown mean (Marsaglia) with replacement C++");
   model.startServer(serverAddress);
   return 0;
 }

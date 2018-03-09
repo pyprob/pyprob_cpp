@@ -146,9 +146,10 @@ namespace cpproblight
     }
   }
 
-  Model::Model(xt::xarray<double> (*modelFunction)(xt::xarray<double>), const std::string& modelName)
+  Model::Model(xt::xarray<double> (*modelFunction)(xt::xarray<double>), xt::xarray<double> defaultObservation, const std::string& modelName)
   {
     this->modelFunction = modelFunction;
+    this->defaultObservation = defaultObservation;
     this->modelName = modelName;
     setlocale(LC_ALL,"");
     std::stringstream s;
@@ -176,8 +177,16 @@ namespace cpproblight
         printf("PPLProtocol (C++): Executed traces: %'d\r", ++traces);
         std::cout.flush();
 
-        auto observation = ProtocolTensorToXTensor(message->body_as_Run()->observation());
-        auto result = XTensorToProtocolTensor(builder, this->modelFunction(observation));
+        xt::xarray<double> obs;
+        if (message->body_as_Run()->observation() == NULL)
+        {
+          obs = this->defaultObservation;
+        }
+        else
+        {
+          obs = ProtocolTensorToXTensor(message->body_as_Run()->observation());
+        }
+        auto result = XTensorToProtocolTensor(builder, this->modelFunction(obs));
 
         auto runResult = PPLProtocol::CreateRunResult(builder, result);
         auto message = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_RunResult, runResult.Union());
