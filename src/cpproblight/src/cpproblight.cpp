@@ -132,10 +132,63 @@ namespace cpproblight
         return;
       }
       auto val = XTensorToProtocolTensor(builder, value);
-      auto mean = XTensorToProtocolTensor(builder, xt::xarray<double> {this->mean});
-      auto stddev = XTensorToProtocolTensor(builder, xt::xarray<double> {this->stddev});
+      auto mean = XTensorToProtocolTensor(builder, this->mean);
+      auto stddev = XTensorToProtocolTensor(builder, this->stddev);
       auto normal = PPLProtocol::CreateNormal(builder, mean, stddev);
       auto observe = PPLProtocol::CreateObserveDirect(builder, address.c_str(), PPLProtocol::Distribution_Normal, normal.Union(), val);
+      auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Observe, observe.Union());
+      sendMessage(message_request);
+
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      // auto message_reply = PPLProtocol::GetMessage(request.data());
+      return;
+    }
+
+    Categorical::Categorical(xt::xarray<double> probs)
+    {
+      this->probs = probs;
+    }
+    xt::xarray<double> Categorical::sample(const bool control, const bool replace, const std::string& address)
+    {
+      if (!zmqSocketConnected)
+      {
+        printf("PPLProtocol (C++): Warning: Not connected, sampling locally.\n");
+        std::default_random_engine generator;
+        auto res = std::discrete_distribution<int>(this->probs.data().begin(), this->probs.data().end())(generator);
+        return res;
+      }
+      auto probs = XTensorToProtocolTensor(builder, this->probs);
+      auto categorical = PPLProtocol::CreateCategorical(builder, probs);
+      auto sample = PPLProtocol::CreateSampleDirect(builder, address.c_str(), PPLProtocol::Distribution_Categorical, categorical.Union(), control, replace);
+      auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Sample, sample.Union());
+      sendMessage(message_request);
+
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      auto message_reply = PPLProtocol::GetMessage(request.data());
+      if (message_reply->body_type() == PPLProtocol::MessageBody_SampleResult)
+      {
+        auto result = ProtocolTensorToXTensor(message_reply->body_as_SampleResult()->result());
+        return result;
+      }
+      else
+      {
+        printf("PPLProtocol (C++): Error: Received an unexpected request. Cannot recover.\n");
+        std::exit(EXIT_FAILURE);
+      }
+    }
+    void Categorical::observe(xt::xarray<double> value, const std::string& address)
+    {
+      if (!zmqSocketConnected)
+      {
+        printf("PPLProtocol (C++): Warning: Not connected, observing locally.\n");
+        return;
+      }
+      auto val = XTensorToProtocolTensor(builder, value);
+      auto probs = XTensorToProtocolTensor(builder, this->probs);
+      auto categorical = PPLProtocol::CreateCategorical(builder, probs);
+      auto observe = PPLProtocol::CreateObserveDirect(builder, address.c_str(), PPLProtocol::Distribution_Categorical, categorical.Union(), val);
       auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Observe, observe.Union());
       sendMessage(message_request);
 

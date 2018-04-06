@@ -6,9 +6,9 @@
 #include "pplprotocol.h"
 #include <zmq.hpp>
 
-#define VERSION "0.1.0"
+#define VERSION "0.1.1"
 #define GIT_BRANCH "master"
-#define GIT_COMMIT_HASH "47d7e4f"
+#define GIT_COMMIT_HASH "d12edfa"
 
 namespace cpproblight
 {
@@ -41,6 +41,17 @@ namespace cpproblight
 
     public:
       Normal(xt::xarray<double> mean=xt::xarray<double> {0}, xt::xarray<double> stddev=xt::xarray<double> {1});
+      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
+      void observe(xt::xarray<double> value, const std::string& address);
+    };
+
+    class Categorical: public Distribution
+    {
+    private:
+      xt::xarray<double> probs;
+
+    public:
+      Categorical(xt::xarray<double> probs=xt::xarray<double> {1});
       xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
       void observe(xt::xarray<double> value, const std::string& address);
     };

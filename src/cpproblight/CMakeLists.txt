@@ -1,6 +1,6 @@
 project(libcpproblight VERSION 0.1 LANGUAGES CXX)
 
-set (VERSION "0.1.0")
+set (VERSION "0.1.1")
 
 add_library(cpproblight SHARED src/cpproblight.cpp)
 
@@ -21,11 +21,15 @@ target_link_libraries(test_gum_marsaglia cpproblight zmq)
 add_executable(test_gum_marsaglia_replacement test/test_gum_marsaglia_replacement.cpp)
 target_link_libraries(test_gum_marsaglia_replacement cpproblight zmq)
 
+add_executable(test_hmm test/test_hmm.cpp)
+target_link_libraries(test_hmm cpproblight zmq)
+
 add_test(test_local_sample_1 test_local_sample)
 add_test(test_set_defaults_and_addresses_1 test_set_defaults_and_addresses)
 add_test(test_gum_1 test_gum)
 add_test(test_gum_marsaglia_1 test_gum_marsaglia)
 add_test(test_gum_marsaglia_replacement_1 test_gum_marsaglia_replacement)
+add_test(test_hmm_1 test_hmm)
 
 install (TARGETS cpproblight DESTINATION lib)
 install (FILES include/cpproblight.h include/pplprotocol.h DESTINATION include)

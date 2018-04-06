@@ -1,5 +1,7 @@
 #include <cpproblight.h>
 
+// Gaussian with unkown mean
+// http://www.robots.ox.ac.uk/~fwood/assets/pdf/Wood-AISTATS-2014.pdf
 
 xt::xarray<double> forward(xt::xarray<double> observation)
 {

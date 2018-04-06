@@ -44,6 +44,17 @@ namespace cpproblight
       xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
       void observe(xt::xarray<double> value, const std::string& address);
     };
+
+    class Categorical: public Distribution
+    {
+    private:
+      xt::xarray<double> probs;
+
+    public:
+      Categorical(xt::xarray<double> probs=xt::xarray<double> {1});
+      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
+      void observe(xt::xarray<double> value, const std::string& address);
+    };
   }
 
   class Model

@@ -1,5 +1,6 @@
 #include <cpproblight.h>
 
+// Gaussian with unkown mean (Marsaglia)
 // http://www.robots.ox.ac.uk/~fwood/assets/pdf/Wood-AISTATS-2014.pdf
 
 double marsaglia(double mean, double stddev)
