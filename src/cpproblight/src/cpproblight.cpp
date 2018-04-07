@@ -7,7 +7,6 @@
 #include <cstdlib>
 #include <locale.h>
 #include <execinfo.h>
-#include <random>
 
 
 namespace cpproblight
@@ -37,10 +36,10 @@ namespace cpproblight
     }
     xt::xarray<double> Uniform::sample(const bool control, const bool replace, const std::string& address)
     {
+
       if (!zmqSocketConnected)
       {
-        printf("PPLProtocol (C++): Warning: Not connected, sampling locally.\n");
-        std::default_random_engine generator;
+        // printf("PPLProtocol (C++): Warning: Not connected, sampling locally.\n");
         auto res = std::uniform_real_distribution<double>(this->low, this->high)(generator);
         return res;
       }
@@ -59,7 +58,7 @@ namespace cpproblight
       }
       else
       {
-        printf("PPLProtocol (C++): Error: Received an unexpected request. Cannot recover.\n");
+        // printf("PPLProtocol (C++): Error: Received an unexpected request. Cannot recover.\n");
         std::exit(EXIT_FAILURE);
       }
     }
@@ -67,7 +66,7 @@ namespace cpproblight
     {
       if (!zmqSocketConnected)
       {
-        printf("PPLProtocol (C++): Warning: Not connected, observing locally.\n");
+        // printf("PPLProtocol (C++): Warning: Not connected, observing locally.\n");
         return;
       }
       auto val = XTensorToProtocolTensor(builder, value);
@@ -91,10 +90,9 @@ namespace cpproblight
     {
       if (!zmqSocketConnected)
       {
-        printf("PPLProtocol (C++): Warning: Not connected, sampling locally.\n");
-        std::default_random_engine generator;
+        // printf("PPLProtocol (C++): Warning: Not connected, sampling locally.\n");
         auto n = this->mean.size();
-        xt::xarray<double> res = xt::xarray<double>(n);
+        xt::xtensor<double, 1> res(std::array<size_t, 1>{n});
         for (size_t i = 0; i < n; i++)
         {
           auto mean = this->mean(i);
@@ -120,7 +118,7 @@ namespace cpproblight
       }
       else
       {
-        printf("PPLProtocol (C++): Error: Received an unexpected request. Cannot recover.\n");
+        // printf("PPLProtocol (C++): Error: Received an unexpected request. Cannot recover.\n");
         std::exit(EXIT_FAILURE);
       }
     }
@@ -128,7 +126,7 @@ namespace cpproblight
     {
       if (!zmqSocketConnected)
       {
-        printf("PPLProtocol (C++): Warning: Not connected, observing locally.\n");
+        // printf("PPLProtocol (C++): Warning: Not connected, observing locally.\n");
         return;
       }
       auto val = XTensorToProtocolTensor(builder, value);
@@ -153,8 +151,7 @@ namespace cpproblight
     {
       if (!zmqSocketConnected)
       {
-        printf("PPLProtocol (C++): Warning: Not connected, sampling locally.\n");
-        std::default_random_engine generator;
+        // printf("PPLProtocol (C++): Warning: Not connected, sampling locally.\n");
         auto res = std::discrete_distribution<int>(this->probs.data().begin(), this->probs.data().end())(generator);
         return res;
       }
@@ -174,7 +171,7 @@ namespace cpproblight
       }
       else
       {
-        printf("PPLProtocol (C++): Error: Received an unexpected request. Cannot recover.\n");
+        // printf("PPLProtocol (C++): Error: Received an unexpected request. Cannot recover.\n");
         std::exit(EXIT_FAILURE);
       }
     }
@@ -182,7 +179,7 @@ namespace cpproblight
     {
       if (!zmqSocketConnected)
       {
-        printf("PPLProtocol (C++): Warning: Not connected, observing locally.\n");
+        // printf("PPLProtocol (C++): Warning: Not connected, observing locally.\n");
         return;
       }
       auto val = XTensorToProtocolTensor(builder, value);

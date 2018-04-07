@@ -5,13 +5,15 @@
 #include "xtensor/xio.hpp"
 #include "pplprotocol.h"
 #include <zmq.hpp>
+#include <random>
 
 #define VERSION "0.1.1"
-#define GIT_BRANCH "master"
-#define GIT_COMMIT_HASH "d12edfa"
+#define GIT_BRANCH ""
+#define GIT_COMMIT_HASH ""
 
 namespace cpproblight
 {
+  std::default_random_engine generator;
   namespace distributions
   {
     class Distribution

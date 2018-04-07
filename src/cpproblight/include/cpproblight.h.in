@@ -5,6 +5,7 @@
 #include "xtensor/xio.hpp"
 #include "pplprotocol.h"
 #include <zmq.hpp>
+#include <random>
 
 #define VERSION "@VERSION@"
 #define GIT_BRANCH "@GIT_BRANCH@"
@@ -12,6 +13,7 @@
 
 namespace cpproblight
 {
+  std::default_random_engine generator;
   namespace distributions
   {
     class Distribution
