@@ -1,6 +1,6 @@
 project(libcpproblight VERSION 0.1 LANGUAGES CXX)
 
-set (VERSION "0.1.1")
+set (VERSION "0.1.2")
 
 add_library(cpproblight SHARED src/cpproblight.cpp)
 
