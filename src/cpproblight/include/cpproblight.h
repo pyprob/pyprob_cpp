@@ -7,9 +7,9 @@
 #include <zmq.hpp>
 #include <random>
 
-#define VERSION "0.1.2"
+#define VERSION "0.1.3"
 #define GIT_BRANCH "master"
-#define GIT_COMMIT_HASH "f94934a"
+#define GIT_COMMIT_HASH "4d43419"
 
 
 namespace cpproblight
@@ -55,6 +55,17 @@ namespace cpproblight
 
     public:
       Categorical(xt::xarray<double> probs=xt::xarray<double> {1});
+      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
+      void observe(xt::xarray<double> value, const std::string& address);
+    };
+
+    class Poisson: public Distribution
+    {
+    private:
+      double rate;
+
+    public:
+      Poisson(double rate=0);
       xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
       void observe(xt::xarray<double> value, const std::string& address);
     };

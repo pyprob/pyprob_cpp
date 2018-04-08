@@ -194,6 +194,57 @@ namespace cpproblight
       // auto message_reply = PPLProtocol::GetMessage(request.data());
       return;
     }
+
+    Poisson::Poisson(double rate)
+    {
+      this->rate = rate;
+    }
+    xt::xarray<double> Poisson::sample(const bool control, const bool replace, const std::string& address)
+    {
+
+      if (!zmqSocketConnected)
+      {
+        printf("PPLProtocol (C++): Warning: Not connected, sampling locally.\n");
+        auto res = std::poisson_distribution<int>(this->rate)(generator);
+        return res;
+      }
+      auto poisson = PPLProtocol::CreatePoisson(builder, this->rate);
+      auto sample = PPLProtocol::CreateSampleDirect(builder, address.c_str(), PPLProtocol::Distribution_Poisson, poisson.Union(), control, replace);
+      auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Sample, sample.Union());
+      sendMessage(message_request);
+
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      auto message_reply = PPLProtocol::GetMessage(request.data());
+      if (message_reply->body_type() == PPLProtocol::MessageBody_SampleResult)
+      {
+        auto result = ProtocolTensorToXTensor(message_reply->body_as_SampleResult()->result());
+        return result;
+      }
+      else
+      {
+        printf("PPLProtocol (C++): Error: Received an unexpected request. Cannot recover.\n");
+        std::exit(EXIT_FAILURE);
+      }
+    }
+    void Poisson::observe(xt::xarray<double> value, const std::string& address)
+    {
+      if (!zmqSocketConnected)
+      {
+        printf("PPLProtocol (C++): Warning: Not connected, observing locally.\n");
+        return;
+      }
+      auto val = XTensorToProtocolTensor(builder, value);
+      auto poisson = PPLProtocol::CreatePoisson(builder, this->rate);
+      auto observe = PPLProtocol::CreateObserveDirect(builder, address.c_str(), PPLProtocol::Distribution_Poisson, poisson.Union(), val);
+      auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Observe, observe.Union());
+      sendMessage(message_request);
+
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      // auto message_reply = PPLProtocol::GetMessage(request.data());
+      return;
+    }
   }
 
   Model::Model(xt::xarray<double> (*modelFunction)(xt::xarray<double>), xt::xarray<double> defaultObservation, const std::string& modelName)

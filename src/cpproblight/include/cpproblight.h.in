@@ -58,6 +58,17 @@ namespace cpproblight
       xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
       void observe(xt::xarray<double> value, const std::string& address);
     };
+
+    class Poisson: public Distribution
+    {
+    private:
+      double rate;
+
+    public:
+      Poisson(double rate=0);
+      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
+      void observe(xt::xarray<double> value, const std::string& address);
+    };
   }
 
   class Model
