@@ -30,11 +30,13 @@ struct ObserveResult;
 
 struct Reset;
 
-struct Categorical;
-
 struct Normal;
 
 struct Uniform;
+
+struct Categorical;
+
+struct Poisson;
 
 enum MessageBody {
   MessageBody_NONE = 0,
@@ -137,16 +139,18 @@ enum Distribution {
   Distribution_Normal = 1,
   Distribution_Uniform = 2,
   Distribution_Categorical = 3,
+  Distribution_Poisson = 4,
   Distribution_MIN = Distribution_NONE,
-  Distribution_MAX = Distribution_Categorical
+  Distribution_MAX = Distribution_Poisson
 };
 
-inline Distribution (&EnumValuesDistribution())[4] {
+inline Distribution (&EnumValuesDistribution())[5] {
   static Distribution values[] = {
     Distribution_NONE,
     Distribution_Normal,
     Distribution_Uniform,
-    Distribution_Categorical
+    Distribution_Categorical,
+    Distribution_Poisson
   };
   return values;
 }
@@ -157,6 +161,7 @@ inline const char **EnumNamesDistribution() {
     "Normal",
     "Uniform",
     "Categorical",
+    "Poisson",
     nullptr
   };
   return names;
@@ -181,6 +186,10 @@ template<> struct DistributionTraits<Uniform> {
 
 template<> struct DistributionTraits<Categorical> {
   static const Distribution enum_value = Distribution_Categorical;
+};
+
+template<> struct DistributionTraits<Poisson> {
+  static const Distribution enum_value = Distribution_Poisson;
 };
 
 bool VerifyDistribution(flatbuffers::Verifier &verifier, const void *obj, Distribution type);
@@ -583,6 +592,9 @@ struct Sample FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const Categorical *distribution_as_Categorical() const {
     return distribution_type() == Distribution_Categorical ? static_cast<const Categorical *>(distribution()) : nullptr;
   }
+  const Poisson *distribution_as_Poisson() const {
+    return distribution_type() == Distribution_Poisson ? static_cast<const Poisson *>(distribution()) : nullptr;
+  }
   bool control() const {
     return GetField<uint8_t>(VT_CONTROL, 1) != 0;
   }
@@ -612,6 +624,10 @@ template<> inline const Uniform *Sample::distribution_as<Uniform>() const {
 
 template<> inline const Categorical *Sample::distribution_as<Categorical>() const {
   return distribution_as_Categorical();
+}
+
+template<> inline const Poisson *Sample::distribution_as<Poisson>() const {
+  return distribution_as_Poisson();
 }
 
 struct SampleBuilder {
@@ -743,6 +759,9 @@ struct Observe FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const Categorical *distribution_as_Categorical() const {
     return distribution_type() == Distribution_Categorical ? static_cast<const Categorical *>(distribution()) : nullptr;
   }
+  const Poisson *distribution_as_Poisson() const {
+    return distribution_type() == Distribution_Poisson ? static_cast<const Poisson *>(distribution()) : nullptr;
+  }
   const ProtocolTensor *value() const {
     return GetPointer<const ProtocolTensor *>(VT_VALUE);
   }
@@ -769,6 +788,10 @@ template<> inline const Uniform *Observe::distribution_as<Uniform>() const {
 
 template<> inline const Categorical *Observe::distribution_as<Categorical>() const {
   return distribution_as_Categorical();
+}
+
+template<> inline const Poisson *Observe::distribution_as<Poisson>() const {
+  return distribution_as_Poisson();
 }
 
 struct ObserveBuilder {
@@ -882,47 +905,6 @@ inline flatbuffers::Offset<Reset> CreateReset(
   return builder_.Finish();
 }
 
-struct Categorical FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
-  enum {
-    VT_PROBS = 4
-  };
-  const ProtocolTensor *probs() const {
-    return GetPointer<const ProtocolTensor *>(VT_PROBS);
-  }
-  bool Verify(flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_PROBS) &&
-           verifier.VerifyTable(probs()) &&
-           verifier.EndTable();
-  }
-};
-
-struct CategoricalBuilder {
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
-  void add_probs(flatbuffers::Offset<ProtocolTensor> probs) {
-    fbb_.AddOffset(Categorical::VT_PROBS, probs);
-  }
-  explicit CategoricalBuilder(flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  CategoricalBuilder &operator=(const CategoricalBuilder &);
-  flatbuffers::Offset<Categorical> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<Categorical>(end);
-    return o;
-  }
-};
-
-inline flatbuffers::Offset<Categorical> CreateCategorical(
-    flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<ProtocolTensor> probs = 0) {
-  CategoricalBuilder builder_(_fbb);
-  builder_.add_probs(probs);
-  return builder_.Finish();
-}
-
 struct Normal FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   enum {
     VT_MEAN = 4,
@@ -1025,6 +1007,87 @@ inline flatbuffers::Offset<Uniform> CreateUniform(
   return builder_.Finish();
 }
 
+struct Categorical FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  enum {
+    VT_PROBS = 4
+  };
+  const ProtocolTensor *probs() const {
+    return GetPointer<const ProtocolTensor *>(VT_PROBS);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_PROBS) &&
+           verifier.VerifyTable(probs()) &&
+           verifier.EndTable();
+  }
+};
+
+struct CategoricalBuilder {
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_probs(flatbuffers::Offset<ProtocolTensor> probs) {
+    fbb_.AddOffset(Categorical::VT_PROBS, probs);
+  }
+  explicit CategoricalBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  CategoricalBuilder &operator=(const CategoricalBuilder &);
+  flatbuffers::Offset<Categorical> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<Categorical>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<Categorical> CreateCategorical(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    flatbuffers::Offset<ProtocolTensor> probs = 0) {
+  CategoricalBuilder builder_(_fbb);
+  builder_.add_probs(probs);
+  return builder_.Finish();
+}
+
+struct Poisson FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  enum {
+    VT_RATE = 4
+  };
+  double rate() const {
+    return GetField<double>(VT_RATE, 0.0);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<double>(verifier, VT_RATE) &&
+           verifier.EndTable();
+  }
+};
+
+struct PoissonBuilder {
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_rate(double rate) {
+    fbb_.AddElement<double>(Poisson::VT_RATE, rate, 0.0);
+  }
+  explicit PoissonBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  PoissonBuilder &operator=(const PoissonBuilder &);
+  flatbuffers::Offset<Poisson> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<Poisson>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<Poisson> CreatePoisson(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    double rate = 0.0) {
+  PoissonBuilder builder_(_fbb);
+  builder_.add_rate(rate);
+  return builder_.Finish();
+}
+
 inline bool VerifyMessageBody(flatbuffers::Verifier &verifier, const void *obj, MessageBody type) {
   switch (type) {
     case MessageBody_NONE: {
@@ -1096,6 +1159,10 @@ inline bool VerifyDistribution(flatbuffers::Verifier &verifier, const void *obj,
     }
     case Distribution_Categorical: {
       auto ptr = reinterpret_cast<const Categorical *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case Distribution_Poisson: {
+      auto ptr = reinterpret_cast<const Poisson *>(obj);
       return verifier.VerifyTable(ptr);
     }
     default: return false;
