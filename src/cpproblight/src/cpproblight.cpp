@@ -29,7 +29,7 @@ namespace cpproblight
       return;
     }
 
-    Uniform::Uniform(double low, double high)
+    Uniform::Uniform(xt::xarray<double> low, xt::xarray<double> high)
     {
       this->low = low;
       this->high = high;
@@ -40,10 +40,19 @@ namespace cpproblight
       if (!zmqSocketConnected)
       {
         printf("PPLProtocol (C++): Warning: Not connected, sampling locally.\n");
-        auto res = std::uniform_real_distribution<double>(this->low, this->high)(generator);
+        auto n = this->low.size();
+        xt::xtensor<double, 1> res(std::array<size_t, 1>{n});
+        for (size_t i = 0; i < n; i++)
+        {
+          auto low = this->low(i);
+          auto high = this->high(i);
+          res(i) = std::uniform_real_distribution<double>(low, high)(generator);
+        }
         return res;
       }
-      auto uniform = PPLProtocol::CreateUniform(builder, this->low, this->high);
+      auto low = XTensorToProtocolTensor(builder, this->low);
+      auto high = XTensorToProtocolTensor(builder, this->high);
+      auto uniform = PPLProtocol::CreateUniform(builder, low, high);
       auto sample = PPLProtocol::CreateSampleDirect(builder, address.c_str(), PPLProtocol::Distribution_Uniform, uniform.Union(), control, replace);
       auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Sample, sample.Union());
       sendMessage(message_request);
@@ -70,7 +79,9 @@ namespace cpproblight
         return;
       }
       auto val = XTensorToProtocolTensor(builder, value);
-      auto uniform = PPLProtocol::CreateUniform(builder, this->low, this->high);
+      auto low = XTensorToProtocolTensor(builder, this->low);
+      auto high = XTensorToProtocolTensor(builder, this->high);
+      auto uniform = PPLProtocol::CreateUniform(builder, low, high);
       auto observe = PPLProtocol::CreateObserveDirect(builder, address.c_str(), PPLProtocol::Distribution_Uniform, uniform.Union(), val);
       auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Observe, observe.Union());
       sendMessage(message_request);
@@ -195,7 +206,7 @@ namespace cpproblight
       return;
     }
 
-    Poisson::Poisson(double rate)
+    Poisson::Poisson(xt::xarray<double> rate)
     {
       this->rate = rate;
     }
@@ -205,10 +216,17 @@ namespace cpproblight
       if (!zmqSocketConnected)
       {
         printf("PPLProtocol (C++): Warning: Not connected, sampling locally.\n");
-        auto res = std::poisson_distribution<int>(this->rate)(generator);
+        auto n = this->rate.size();
+        xt::xtensor<double, 1> res(std::array<size_t, 1>{n});
+        for (size_t i = 0; i < n; i++)
+        {
+          auto rate = this->rate(i);
+          res(i) = std::poisson_distribution<int>(rate)(generator);
+        }
         return res;
       }
-      auto poisson = PPLProtocol::CreatePoisson(builder, this->rate);
+      auto rate = XTensorToProtocolTensor(builder, this->rate);
+      auto poisson = PPLProtocol::CreatePoisson(builder, rate);
       auto sample = PPLProtocol::CreateSampleDirect(builder, address.c_str(), PPLProtocol::Distribution_Poisson, poisson.Union(), control, replace);
       auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Sample, sample.Union());
       sendMessage(message_request);
@@ -235,7 +253,8 @@ namespace cpproblight
         return;
       }
       auto val = XTensorToProtocolTensor(builder, value);
-      auto poisson = PPLProtocol::CreatePoisson(builder, this->rate);
+      auto rate = XTensorToProtocolTensor(builder, this->rate);
+      auto poisson = PPLProtocol::CreatePoisson(builder, rate);
       auto observe = PPLProtocol::CreateObserveDirect(builder, address.c_str(), PPLProtocol::Distribution_Poisson, poisson.Union(), val);
       auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Observe, observe.Union());
       sendMessage(message_request);

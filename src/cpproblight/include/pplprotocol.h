@@ -962,16 +962,18 @@ struct Uniform FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_LOW = 4,
     VT_HIGH = 6
   };
-  double low() const {
-    return GetField<double>(VT_LOW, 0.0);
+  const ProtocolTensor *low() const {
+    return GetPointer<const ProtocolTensor *>(VT_LOW);
   }
-  double high() const {
-    return GetField<double>(VT_HIGH, 0.0);
+  const ProtocolTensor *high() const {
+    return GetPointer<const ProtocolTensor *>(VT_HIGH);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<double>(verifier, VT_LOW) &&
-           VerifyField<double>(verifier, VT_HIGH) &&
+           VerifyOffset(verifier, VT_LOW) &&
+           verifier.VerifyTable(low()) &&
+           VerifyOffset(verifier, VT_HIGH) &&
+           verifier.VerifyTable(high()) &&
            verifier.EndTable();
   }
 };
@@ -979,11 +981,11 @@ struct Uniform FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 struct UniformBuilder {
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_low(double low) {
-    fbb_.AddElement<double>(Uniform::VT_LOW, low, 0.0);
+  void add_low(flatbuffers::Offset<ProtocolTensor> low) {
+    fbb_.AddOffset(Uniform::VT_LOW, low);
   }
-  void add_high(double high) {
-    fbb_.AddElement<double>(Uniform::VT_HIGH, high, 0.0);
+  void add_high(flatbuffers::Offset<ProtocolTensor> high) {
+    fbb_.AddOffset(Uniform::VT_HIGH, high);
   }
   explicit UniformBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -999,8 +1001,8 @@ struct UniformBuilder {
 
 inline flatbuffers::Offset<Uniform> CreateUniform(
     flatbuffers::FlatBufferBuilder &_fbb,
-    double low = 0.0,
-    double high = 0.0) {
+    flatbuffers::Offset<ProtocolTensor> low = 0,
+    flatbuffers::Offset<ProtocolTensor> high = 0) {
   UniformBuilder builder_(_fbb);
   builder_.add_high(high);
   builder_.add_low(low);
@@ -1052,12 +1054,13 @@ struct Poisson FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   enum {
     VT_RATE = 4
   };
-  double rate() const {
-    return GetField<double>(VT_RATE, 0.0);
+  const ProtocolTensor *rate() const {
+    return GetPointer<const ProtocolTensor *>(VT_RATE);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<double>(verifier, VT_RATE) &&
+           VerifyOffset(verifier, VT_RATE) &&
+           verifier.VerifyTable(rate()) &&
            verifier.EndTable();
   }
 };
@@ -1065,8 +1068,8 @@ struct Poisson FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 struct PoissonBuilder {
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_rate(double rate) {
-    fbb_.AddElement<double>(Poisson::VT_RATE, rate, 0.0);
+  void add_rate(flatbuffers::Offset<ProtocolTensor> rate) {
+    fbb_.AddOffset(Poisson::VT_RATE, rate);
   }
   explicit PoissonBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1082,7 +1085,7 @@ struct PoissonBuilder {
 
 inline flatbuffers::Offset<Poisson> CreatePoisson(
     flatbuffers::FlatBufferBuilder &_fbb,
-    double rate = 0.0) {
+    flatbuffers::Offset<ProtocolTensor> rate = 0) {
   PoissonBuilder builder_(_fbb);
   builder_.add_rate(rate);
   return builder_.Finish();

@@ -9,7 +9,7 @@
 
 #define VERSION "0.1.3"
 #define GIT_BRANCH "master"
-#define GIT_COMMIT_HASH "4d43419"
+#define GIT_COMMIT_HASH "cf5565c"
 
 
 namespace cpproblight
@@ -27,11 +27,11 @@ namespace cpproblight
     class Uniform: public Distribution
     {
     private:
-      double low;
-      double high;
+      xt::xarray<double> low;
+      xt::xarray<double> high;
 
     public:
-      Uniform(double low=0, double high=1);
+      Uniform(xt::xarray<double> low=xt::xarray<double> {0}, xt::xarray<double> high=xt::xarray<double> {1});
       xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
       void observe(xt::xarray<double> value, const std::string& address);
     };
@@ -62,10 +62,10 @@ namespace cpproblight
     class Poisson: public Distribution
     {
     private:
-      double rate;
+      xt::xarray<double> rate;
 
     public:
-      Poisson(double rate=0);
+      Poisson(xt::xarray<double> rate=0);
       xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
       void observe(xt::xarray<double> value, const std::string& address);
     };
