@@ -1,4 +1,4 @@
-#include "cpproblight.h"
+#include "pyprob_cpp.h"
 #include <stdio.h>
 #include <iostream>
 #include "xtensor/xadapt.hpp"
@@ -9,7 +9,7 @@
 #include <execinfo.h>
 
 
-namespace cpproblight
+namespace pyprob_cpp
 {
   zmq::context_t zmqContext = zmq::context_t(1);
   zmq::socket_t zmqSocket = zmq::socket_t(zmqContext, ZMQ_REP);
@@ -273,7 +273,7 @@ namespace cpproblight
     this->modelName = modelName;
     setlocale(LC_ALL,"");
     std::stringstream s;
-    s << "cpproblight " << VERSION << " (" << GIT_BRANCH << ":" << GIT_COMMIT_HASH << ")";
+    s << "pyprob_cpp " << VERSION << " (" << GIT_BRANCH << ":" << GIT_COMMIT_HASH << ")";
     this->systemName = s.str();
   }
 
@@ -452,7 +452,7 @@ namespace cpproblight
           ret << "; ";
         }
       }
-      if ((s.find("cpproblight") != std::string::npos) && (s.find("startServer") != std::string::npos))
+      if ((s.find("pyprob_cpp") != std::string::npos) && (s.find("startServer") != std::string::npos))
       {
         begin = true;
       }

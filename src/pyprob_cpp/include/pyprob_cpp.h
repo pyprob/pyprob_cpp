@@ -1,5 +1,5 @@
-#ifndef CPPROBLIGHT_H
-#define CPPROBLIGHT_H
+#ifndef pyprob_cpp_H
+#define pyprob_cpp_H
 #include <string>
 #include "xtensor/xarray.hpp"
 #include "xtensor/xio.hpp"
@@ -7,12 +7,12 @@
 #include <zmq.hpp>
 #include <random>
 
-#define VERSION "@VERSION@"
-#define GIT_BRANCH "@GIT_BRANCH@"
-#define GIT_COMMIT_HASH "@GIT_COMMIT_HASH@"
+#define VERSION "0.1.3"
+#define GIT_BRANCH "master"
+#define GIT_COMMIT_HASH "cf5565c"
 
 
-namespace cpproblight
+namespace pyprob_cpp
 {
   std::default_random_engine generator;
   namespace distributions

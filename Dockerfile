@@ -11,13 +11,13 @@ RUN cd /code && git clone --branch v1.8.0 https://github.com/google/flatbuffers.
 RUN cd /code && git clone --branch 0.4.0 https://github.com/QuantStack/xtl.git && cd xtl && cmake . && make install
 RUN cd /code && git clone --branch 0.15.4 https://github.com/QuantStack/xtensor.git && cd xtensor && cmake . && make install
 
-COPY . /code/cpproblight/
-RUN cd /code/cpproblight && rm -rf build && mkdir build && cd build && cmake ../src && cmake --build . && make install
+COPY . /code/pyprob_cpp/
+RUN cd /code/pyprob_cpp && rm -rf build && mkdir build && cd build && cmake ../src && cmake --build . && make install
 
 ARG GIT_COMMIT="unknown"
 
-LABEL project="cpproblight"
-LABEL url="https://github.com/probprog/cpproblight"
+LABEL project="pyprob_cpp"
+LABEL url="https://github.com/probprog/pyprob_cpp"
 LABEL maintainer="Atilim Gunes Baydin <gunes@robots.ox.ac.uk>"
 LABEL git_commit=$GIT_COMMIT
 
