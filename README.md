@@ -1,4 +1,4 @@
-## cpproblight [![Build Status](https://travis-ci.org/probprog/cpproblight.svg?branch=master)](https://travis-ci.org/probprog/cpproblight)
+## pyprob_cpp [![Build Status](https://travis-ci.org/probprog/pyprob_cpp.svg?branch=master)](https://travis-ci.org/probprog/pyprob_cpp)
 
 ### Dependencies
 
