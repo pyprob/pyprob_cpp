@@ -4,8 +4,18 @@
 
 Please see the main [pyprob](https://github.com/probprog/pyprob) documentation for more information.
 
-### Dependencies
+## Dependencies
 
 - ZMQ: http://zeromq.org/
 - flatbuffers: https://github.com/google/flatbuffers/releases
 - xtensor: https://github.com/QuantStack/xtl
+
+## Docker
+
+A Docker image with the latest passing commit is automatically pushed to `probprog/pyprob_cpp:latest`
+
+https://hub.docker.com/r/probprog/pyprob_cpp/
+
+## License
+
+`pyprob_cpp` is distributed under the BSD License.
