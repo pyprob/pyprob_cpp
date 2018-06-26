@@ -4,11 +4,22 @@
 
 Please see the main [pyprob](https://github.com/probprog/pyprob) documentation for more information.
 
-## Dependencies
+## Installation
 
+### Dependencies
 - ZMQ: http://zeromq.org/
 - flatbuffers: https://github.com/google/flatbuffers/releases
 - xtensor: https://github.com/QuantStack/xtl
+
+### Install from source
+
+Please see the provided [Dockerfile](https://github.com/probprog/pyprob_cpp/blob/master/Dockerfile) for more specific instructions on how to install dependencies and configure the build environment.
+
+```
+git clone git@github.com:probprog/pyprob_cpp.git
+cd pyprob_cpp
+mkdir build && cd build && cmake ../src && cmake --build . && make install
+```
 
 ## Docker
 
