@@ -13,7 +13,7 @@ Please see the main [pyprob](https://github.com/probprog/pyprob) documentation f
 
 ### Install from source
 
-Please see the provided [Dockerfile](https://github.com/probprog/pyprob_cpp/blob/master/Dockerfile) for more specific instructions on how to install dependencies and configure the build environment.
+Please see the provided [Dockerfile](https://github.com/probprog/pyprob_cpp/blob/master/Dockerfile) for more specific instructions on how to install the dependencies and configure the build environment.
 
 ```
 git clone git@github.com:probprog/pyprob_cpp.git
@@ -31,7 +31,7 @@ https://hub.docker.com/r/probprog/pyprob_cpp/
 
 Several example models in C++ are provided in this repository, under the [src/pyprob_cpp/test](https://github.com/probprog/pyprob_cpp/tree/master/src/pyprob_cpp/test) folder. 
 
-These mirror the Python examples in the main `pyprob` repository and are used as continuous integration tests ensuring that `pyprob` and `pyprob_cpp` work seamlessly together.
+These mirror the Python test cases in the main `pyprob` repository and are used as continuous integration tests ensuring that `pyprob` and `pyprob_cpp` work seamlessly together.
 
 Here is how a simple model looks like:
 
