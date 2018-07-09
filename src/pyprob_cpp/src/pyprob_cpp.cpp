@@ -39,7 +39,7 @@ namespace pyprob_cpp
 
       if (!zmqSocketConnected)
       {
-        printf("PPLProtocol (C++): Warning: Not connected, sampling locally.\n");
+        printf("ppx (C++): Warning: Not connected, sampling locally.\n");
         auto n = this->low.size();
         xt::xtensor<double, 1> res(std::array<size_t, 1>{n});
         for (size_t i = 0; i < n; i++)
@@ -50,24 +50,24 @@ namespace pyprob_cpp
         }
         return res;
       }
-      auto low = XTensorToProtocolTensor(builder, this->low);
-      auto high = XTensorToProtocolTensor(builder, this->high);
-      auto uniform = PPLProtocol::CreateUniform(builder, low, high);
-      auto sample = PPLProtocol::CreateSampleDirect(builder, address.c_str(), PPLProtocol::Distribution_Uniform, uniform.Union(), control, replace);
-      auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Sample, sample.Union());
+      auto low = XTensorToTensor(builder, this->low);
+      auto high = XTensorToTensor(builder, this->high);
+      auto uniform = ppx::CreateUniform(builder, low, high);
+      auto sample = ppx::CreateSampleDirect(builder, address.c_str(), ppx::Distribution_Uniform, uniform.Union(), control, replace);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Sample, sample.Union());
       sendMessage(message_request);
 
       zmq::message_t request;
       zmqSocket.recv(&request);
-      auto message_reply = PPLProtocol::GetMessage(request.data());
-      if (message_reply->body_type() == PPLProtocol::MessageBody_SampleResult)
+      auto message_reply = ppx::GetMessage(request.data());
+      if (message_reply->body_type() == ppx::MessageBody_SampleResult)
       {
-        auto result = ProtocolTensorToXTensor(message_reply->body_as_SampleResult()->result());
+        auto result = TensorToXTensor(message_reply->body_as_SampleResult()->result());
         return result;
       }
       else
       {
-        printf("PPLProtocol (C++): Error: Received an unexpected request. Cannot recover.\n");
+        printf("ppx (C++): Error: Received an unexpected request. Cannot recover.\n");
         std::exit(EXIT_FAILURE);
       }
     }
@@ -75,20 +75,20 @@ namespace pyprob_cpp
     {
       if (!zmqSocketConnected)
       {
-        printf("PPLProtocol (C++): Warning: Not connected, observing locally.\n");
+        printf("ppx (C++): Warning: Not connected, observing locally.\n");
         return;
       }
-      auto val = XTensorToProtocolTensor(builder, value);
-      auto low = XTensorToProtocolTensor(builder, this->low);
-      auto high = XTensorToProtocolTensor(builder, this->high);
-      auto uniform = PPLProtocol::CreateUniform(builder, low, high);
-      auto observe = PPLProtocol::CreateObserveDirect(builder, address.c_str(), PPLProtocol::Distribution_Uniform, uniform.Union(), val);
-      auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Observe, observe.Union());
+      auto val = XTensorToTensor(builder, value);
+      auto low = XTensorToTensor(builder, this->low);
+      auto high = XTensorToTensor(builder, this->high);
+      auto uniform = ppx::CreateUniform(builder, low, high);
+      auto observe = ppx::CreateObserveDirect(builder, address.c_str(), ppx::Distribution_Uniform, uniform.Union(), val);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Observe, observe.Union());
       sendMessage(message_request);
 
       zmq::message_t request;
       zmqSocket.recv(&request);
-      // auto message_reply = PPLProtocol::GetMessage(request.data());
+      // auto message_reply = ppx::GetMessage(request.data());
       return;
     }
 
@@ -101,7 +101,7 @@ namespace pyprob_cpp
     {
       if (!zmqSocketConnected)
       {
-        printf("PPLProtocol (C++): Warning: Not connected, sampling locally.\n");
+        printf("ppx (C++): Warning: Not connected, sampling locally.\n");
         auto n = this->mean.size();
         xt::xtensor<double, 1> res(std::array<size_t, 1>{n});
         for (size_t i = 0; i < n; i++)
@@ -112,24 +112,24 @@ namespace pyprob_cpp
         }
         return res;
       }
-      auto mean = XTensorToProtocolTensor(builder, this->mean);
-      auto stddev = XTensorToProtocolTensor(builder, this->stddev);
-      auto normal = PPLProtocol::CreateNormal(builder, mean, stddev);
-      auto sample = PPLProtocol::CreateSampleDirect(builder, address.c_str(), PPLProtocol::Distribution_Normal, normal.Union(), control, replace);
-      auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Sample, sample.Union());
+      auto mean = XTensorToTensor(builder, this->mean);
+      auto stddev = XTensorToTensor(builder, this->stddev);
+      auto normal = ppx::CreateNormal(builder, mean, stddev);
+      auto sample = ppx::CreateSampleDirect(builder, address.c_str(), ppx::Distribution_Normal, normal.Union(), control, replace);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Sample, sample.Union());
       sendMessage(message_request);
 
       zmq::message_t request;
       zmqSocket.recv(&request);
-      auto message_reply = PPLProtocol::GetMessage(request.data());
-      if (message_reply->body_type() == PPLProtocol::MessageBody_SampleResult)
+      auto message_reply = ppx::GetMessage(request.data());
+      if (message_reply->body_type() == ppx::MessageBody_SampleResult)
       {
-        auto result = ProtocolTensorToXTensor(message_reply->body_as_SampleResult()->result());
+        auto result = TensorToXTensor(message_reply->body_as_SampleResult()->result());
         return result;
       }
       else
       {
-        printf("PPLProtocol (C++): Error: Received an unexpected request. Cannot recover.\n");
+        printf("ppx (C++): Error: Received an unexpected request. Cannot recover.\n");
         std::exit(EXIT_FAILURE);
       }
     }
@@ -137,20 +137,20 @@ namespace pyprob_cpp
     {
       if (!zmqSocketConnected)
       {
-        printf("PPLProtocol (C++): Warning: Not connected, observing locally.\n");
+        printf("ppx (C++): Warning: Not connected, observing locally.\n");
         return;
       }
-      auto val = XTensorToProtocolTensor(builder, value);
-      auto mean = XTensorToProtocolTensor(builder, this->mean);
-      auto stddev = XTensorToProtocolTensor(builder, this->stddev);
-      auto normal = PPLProtocol::CreateNormal(builder, mean, stddev);
-      auto observe = PPLProtocol::CreateObserveDirect(builder, address.c_str(), PPLProtocol::Distribution_Normal, normal.Union(), val);
-      auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Observe, observe.Union());
+      auto val = XTensorToTensor(builder, value);
+      auto mean = XTensorToTensor(builder, this->mean);
+      auto stddev = XTensorToTensor(builder, this->stddev);
+      auto normal = ppx::CreateNormal(builder, mean, stddev);
+      auto observe = ppx::CreateObserveDirect(builder, address.c_str(), ppx::Distribution_Normal, normal.Union(), val);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Observe, observe.Union());
       sendMessage(message_request);
 
       zmq::message_t request;
       zmqSocket.recv(&request);
-      // auto message_reply = PPLProtocol::GetMessage(request.data());
+      // auto message_reply = ppx::GetMessage(request.data());
       return;
     }
 
@@ -162,27 +162,27 @@ namespace pyprob_cpp
     {
       if (!zmqSocketConnected)
       {
-        printf("PPLProtocol (C++): Warning: Not connected, sampling locally.\n");
+        printf("ppx (C++): Warning: Not connected, sampling locally.\n");
         auto res = std::discrete_distribution<int>(this->probs.data().begin(), this->probs.data().end())(generator);
         return res;
       }
-      auto probs = XTensorToProtocolTensor(builder, this->probs);
-      auto categorical = PPLProtocol::CreateCategorical(builder, probs);
-      auto sample = PPLProtocol::CreateSampleDirect(builder, address.c_str(), PPLProtocol::Distribution_Categorical, categorical.Union(), control, replace);
-      auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Sample, sample.Union());
+      auto probs = XTensorToTensor(builder, this->probs);
+      auto categorical = ppx::CreateCategorical(builder, probs);
+      auto sample = ppx::CreateSampleDirect(builder, address.c_str(), ppx::Distribution_Categorical, categorical.Union(), control, replace);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Sample, sample.Union());
       sendMessage(message_request);
 
       zmq::message_t request;
       zmqSocket.recv(&request);
-      auto message_reply = PPLProtocol::GetMessage(request.data());
-      if (message_reply->body_type() == PPLProtocol::MessageBody_SampleResult)
+      auto message_reply = ppx::GetMessage(request.data());
+      if (message_reply->body_type() == ppx::MessageBody_SampleResult)
       {
-        auto result = ProtocolTensorToXTensor(message_reply->body_as_SampleResult()->result());
+        auto result = TensorToXTensor(message_reply->body_as_SampleResult()->result());
         return result;
       }
       else
       {
-        printf("PPLProtocol (C++): Error: Received an unexpected request. Cannot recover.\n");
+        printf("ppx (C++): Error: Received an unexpected request. Cannot recover.\n");
         std::exit(EXIT_FAILURE);
       }
     }
@@ -190,19 +190,19 @@ namespace pyprob_cpp
     {
       if (!zmqSocketConnected)
       {
-        printf("PPLProtocol (C++): Warning: Not connected, observing locally.\n");
+        printf("ppx (C++): Warning: Not connected, observing locally.\n");
         return;
       }
-      auto val = XTensorToProtocolTensor(builder, value);
-      auto probs = XTensorToProtocolTensor(builder, this->probs);
-      auto categorical = PPLProtocol::CreateCategorical(builder, probs);
-      auto observe = PPLProtocol::CreateObserveDirect(builder, address.c_str(), PPLProtocol::Distribution_Categorical, categorical.Union(), val);
-      auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Observe, observe.Union());
+      auto val = XTensorToTensor(builder, value);
+      auto probs = XTensorToTensor(builder, this->probs);
+      auto categorical = ppx::CreateCategorical(builder, probs);
+      auto observe = ppx::CreateObserveDirect(builder, address.c_str(), ppx::Distribution_Categorical, categorical.Union(), val);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Observe, observe.Union());
       sendMessage(message_request);
 
       zmq::message_t request;
       zmqSocket.recv(&request);
-      // auto message_reply = PPLProtocol::GetMessage(request.data());
+      // auto message_reply = ppx::GetMessage(request.data());
       return;
     }
 
@@ -215,7 +215,7 @@ namespace pyprob_cpp
 
       if (!zmqSocketConnected)
       {
-        printf("PPLProtocol (C++): Warning: Not connected, sampling locally.\n");
+        printf("ppx (C++): Warning: Not connected, sampling locally.\n");
         auto n = this->rate.size();
         xt::xtensor<double, 1> res(std::array<size_t, 1>{n});
         for (size_t i = 0; i < n; i++)
@@ -225,23 +225,23 @@ namespace pyprob_cpp
         }
         return res;
       }
-      auto rate = XTensorToProtocolTensor(builder, this->rate);
-      auto poisson = PPLProtocol::CreatePoisson(builder, rate);
-      auto sample = PPLProtocol::CreateSampleDirect(builder, address.c_str(), PPLProtocol::Distribution_Poisson, poisson.Union(), control, replace);
-      auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Sample, sample.Union());
+      auto rate = XTensorToTensor(builder, this->rate);
+      auto poisson = ppx::CreatePoisson(builder, rate);
+      auto sample = ppx::CreateSampleDirect(builder, address.c_str(), ppx::Distribution_Poisson, poisson.Union(), control, replace);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Sample, sample.Union());
       sendMessage(message_request);
 
       zmq::message_t request;
       zmqSocket.recv(&request);
-      auto message_reply = PPLProtocol::GetMessage(request.data());
-      if (message_reply->body_type() == PPLProtocol::MessageBody_SampleResult)
+      auto message_reply = ppx::GetMessage(request.data());
+      if (message_reply->body_type() == ppx::MessageBody_SampleResult)
       {
-        auto result = ProtocolTensorToXTensor(message_reply->body_as_SampleResult()->result());
+        auto result = TensorToXTensor(message_reply->body_as_SampleResult()->result());
         return result;
       }
       else
       {
-        printf("PPLProtocol (C++): Error: Received an unexpected request. Cannot recover.\n");
+        printf("ppx (C++): Error: Received an unexpected request. Cannot recover.\n");
         std::exit(EXIT_FAILURE);
       }
     }
@@ -249,19 +249,19 @@ namespace pyprob_cpp
     {
       if (!zmqSocketConnected)
       {
-        printf("PPLProtocol (C++): Warning: Not connected, observing locally.\n");
+        printf("ppx (C++): Warning: Not connected, observing locally.\n");
         return;
       }
-      auto val = XTensorToProtocolTensor(builder, value);
-      auto rate = XTensorToProtocolTensor(builder, this->rate);
-      auto poisson = PPLProtocol::CreatePoisson(builder, rate);
-      auto observe = PPLProtocol::CreateObserveDirect(builder, address.c_str(), PPLProtocol::Distribution_Poisson, poisson.Union(), val);
-      auto message_request = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Observe, observe.Union());
+      auto val = XTensorToTensor(builder, value);
+      auto rate = XTensorToTensor(builder, this->rate);
+      auto poisson = ppx::CreatePoisson(builder, rate);
+      auto observe = ppx::CreateObserveDirect(builder, address.c_str(), ppx::Distribution_Poisson, poisson.Union(), val);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Observe, observe.Union());
       sendMessage(message_request);
 
       zmq::message_t request;
       zmqSocket.recv(&request);
-      // auto message_reply = PPLProtocol::GetMessage(request.data());
+      // auto message_reply = ppx::GetMessage(request.data());
       return;
     }
   }
@@ -282,19 +282,19 @@ namespace pyprob_cpp
     this->serverAddress = serverAddress;
     zmqSocket.bind(serverAddress.c_str());
     zmqSocketConnected = true;
-    printf("PPLProtocol (C++): ZMQ_REP server listening at %s\n", this->serverAddress.c_str());
-    printf("PPLProtocol (C++): This system: %s\n", this->systemName.c_str());
-    printf("PPLProtocol (C++): Model name : %s\n", this->modelName.c_str());
+    printf("ppx (C++): ZMQ_REP server listening at %s\n", this->serverAddress.c_str());
+    printf("ppx (C++): This system: %s\n", this->systemName.c_str());
+    printf("ppx (C++): Model name : %s\n", this->modelName.c_str());
 
     int traces = 0;
     while(true)
     {
       zmq::message_t request;
       zmqSocket.recv(&request);
-      auto message = PPLProtocol::GetMessage(request.data());
-      if (message->body_type() == PPLProtocol::MessageBody_Run)
+      auto message = ppx::GetMessage(request.data());
+      if (message->body_type() == ppx::MessageBody_Run)
       {
-        printf("PPLProtocol (C++): Executed traces: %'d\r", ++traces);
+        printf("ppx (C++): Executed traces: %'d\r", ++traces);
         std::cout.flush();
 
         xt::xarray<double> obs;
@@ -304,27 +304,27 @@ namespace pyprob_cpp
         }
         else
         {
-          obs = ProtocolTensorToXTensor(message->body_as_Run()->observation());
+          obs = TensorToXTensor(message->body_as_Run()->observation());
         }
-        auto result = XTensorToProtocolTensor(builder, this->modelFunction(obs));
+        auto result = XTensorToTensor(builder, this->modelFunction(obs));
 
-        auto runResult = PPLProtocol::CreateRunResult(builder, result);
-        auto message = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_RunResult, runResult.Union());
+        auto runResult = ppx::CreateRunResult(builder, result);
+        auto message = ppx::CreateMessage(builder, ppx::MessageBody_RunResult, runResult.Union());
         sendMessage(message);
       }
-      else if (message->body_type() == PPLProtocol::MessageBody_Handshake)
+      else if (message->body_type() == ppx::MessageBody_Handshake)
       {
         auto systemName = message->body_as_Handshake()->system_name()->str();
-        printf("PPLProtocol (C++): Connected to PPL system: %s\n", systemName.c_str());
-        auto handshakeResult = PPLProtocol::CreateHandshakeResultDirect(builder, this->systemName.c_str(), this->modelName.c_str());
-        auto message = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_HandshakeResult, handshakeResult.Union());
+        printf("ppx (C++): Connected to PPL system: %s\n", systemName.c_str());
+        auto handshakeResult = ppx::CreateHandshakeResultDirect(builder, this->systemName.c_str(), this->modelName.c_str());
+        auto message = ppx::CreateMessage(builder, ppx::MessageBody_HandshakeResult, handshakeResult.Union());
         sendMessage(message);
       }
       else
       {
-        printf("PPLProtocol (C++): Error: Received an unexpected request. Resetting...\n");
-        auto reset = PPLProtocol::CreateReset(builder);
-        auto message = PPLProtocol::CreateMessage(builder, PPLProtocol::MessageBody_Reset, reset.Union());
+        printf("ppx (C++): Error: Received an unexpected request. Resetting...\n");
+        auto reset = ppx::CreateReset(builder);
+        auto message = ppx::CreateMessage(builder, ppx::MessageBody_Reset, reset.Union());
         sendMessage(message);
       }
     }
@@ -372,7 +372,7 @@ namespace pyprob_cpp
     defaultReplace = replace;
   }
 
-  xt::xarray<double> ProtocolTensorToXTensor(const PPLProtocol::ProtocolTensor* protocolTensor)
+  xt::xarray<double> TensorToXTensor(const ppx::Tensor* protocolTensor)
   {
     auto data_begin = protocolTensor->data()->begin();
     auto data_size = protocolTensor->data()->size();
@@ -385,14 +385,14 @@ namespace pyprob_cpp
     return xt::adapt(data, shape);
   }
 
-  flatbuffers::Offset<PPLProtocol::ProtocolTensor> XTensorToProtocolTensor(flatbuffers::FlatBufferBuilder& builder, xt::xarray<double> xtensor)
+  flatbuffers::Offset<ppx::Tensor> XTensorToTensor(flatbuffers::FlatBufferBuilder& builder, xt::xarray<double> xtensor)
   {
     auto shape = std::vector<int32_t>(xtensor.shape().begin(), xtensor.shape().end());
     auto data = std::vector<double>(xtensor.data().begin(), xtensor.data().end());
-    return PPLProtocol::CreateProtocolTensorDirect(builder, &data, &shape);
+    return ppx::CreateTensorDirect(builder, &data, &shape);
   }
 
-  void sendMessage(flatbuffers::Offset<PPLProtocol::Message> message)
+  void sendMessage(flatbuffers::Offset<ppx::Message> message)
   {
     builder.Finish(message);
     zmq::message_t request = zmq::message_t(builder.GetSize());

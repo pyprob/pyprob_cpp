@@ -36,7 +36,7 @@ add_test(test_hmm_1 test_hmm)
 add_test(test_branching_1 test_branching)
 
 install (TARGETS pyprob_cpp DESTINATION lib)
-install (FILES include/pyprob_cpp.h include/pplprotocol.h DESTINATION include)
+install (FILES include/pyprob_cpp.h include/ppx_generated.h DESTINATION include)
 
 # Get the current working branch
 execute_process(

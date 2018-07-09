@@ -3,7 +3,7 @@
 #include <string>
 #include "xtensor/xarray.hpp"
 #include "xtensor/xio.hpp"
-#include "pplprotocol.h"
+#include "ppx_generated.h"
 #include <zmq.hpp>
 #include <random>
 
@@ -94,11 +94,11 @@ namespace pyprob_cpp
   void setDefaultControl(bool control = true);
   void setDefaultReplace(bool replace = false);
 
-  xt::xarray<double> ProtocolTensorToXTensor(const PPLProtocol::ProtocolTensor* protocolTensor);
+  xt::xarray<double> TensorToXTensor(const ppx::Tensor* protocolTensor);
 
-  flatbuffers::Offset<PPLProtocol::ProtocolTensor> XTensorToProtocolTensor(flatbuffers::FlatBufferBuilder& builder, xt::xarray<double> xtensor);
+  flatbuffers::Offset<ppx::Tensor> XTensorToTensor(flatbuffers::FlatBufferBuilder& builder, xt::xarray<double> xtensor);
 
-  void sendMessage(flatbuffers::Offset<PPLProtocol::Message> message);
+  void sendMessage(flatbuffers::Offset<ppx::Message> message);
 
   std::string demangleAddress(std::string address);
 
