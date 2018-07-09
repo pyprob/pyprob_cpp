@@ -1,6 +1,6 @@
 # pyprob_cpp [![Build Status](https://travis-ci.org/probprog/pyprob_cpp.svg?branch=master)](https://travis-ci.org/probprog/pyprob_cpp)
 
-`pyprob_cpp` is a C++ library providing a lightweight interface to the `pyprob` probabilistic programming library implemented in Python. The two components communicate through the [PPX](https://github.com/probprog/ppx) protocol that allows execution of models and inference engines in separate programming languages, processes, and machines connected over a network. 
+`pyprob_cpp` is a C++ library providing a lightweight interface to the `pyprob` probabilistic programming library implemented in Python. The two components communicate through the [PPX](https://github.com/probprog/ppx) interface that allows execution of models and inference engines in separate programming languages, processes, and machines connected over a network. 
 
 Please see the main [pyprob](https://github.com/probprog/pyprob) documentation for more information.
 
