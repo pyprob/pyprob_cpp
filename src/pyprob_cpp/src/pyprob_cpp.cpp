@@ -333,7 +333,7 @@ namespace pyprob_cpp
   xt::xarray<double> sample(distributions::Distribution& distribution)
   {
     auto address = extractAddress();
-    return distribution.sample(defaultControl, defaultReplace, address, nullptr);
+    return distribution.sample(defaultControl, defaultReplace, address, "");
   }
 
   xt::xarray<double> sample(distributions::Distribution& distribution, const std::string& name)
@@ -345,7 +345,7 @@ namespace pyprob_cpp
   xt::xarray<double> sample(distributions::Distribution& distribution, const bool control, const bool replace)
   {
     auto address = extractAddress();
-    return distribution.sample(control, replace, address, nullptr);
+    return distribution.sample(control, replace, address, "");
   }
 
   xt::xarray<double> sample(distributions::Distribution& distribution, const bool control, const bool replace, const std::string& name)
@@ -357,7 +357,7 @@ namespace pyprob_cpp
   void observe(distributions::Distribution& distribution, xt::xarray<double> value)
   {
     auto address = extractAddress();
-    return distribution.observe(value, address, nullptr);
+    return distribution.observe(value, address, "");
   }
 
   void observe(distributions::Distribution& distribution, const std::string& name)
