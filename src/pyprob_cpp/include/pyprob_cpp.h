@@ -7,9 +7,9 @@
 #include <zmq.hpp>
 #include <random>
 
-#define VERSION "0.1.3"
+#define VERSION "0.1.4"
 #define GIT_BRANCH "master"
-#define GIT_COMMIT_HASH "8110b71"
+#define GIT_COMMIT_HASH "dfb56d3"
 
 
 namespace pyprob_cpp
