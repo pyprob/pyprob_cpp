@@ -20,8 +20,8 @@ namespace pyprob_cpp
     class Distribution
     {
     public:
-      virtual xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
-      virtual void observe(xt::xarray<double> value, const std::string& address);
+      virtual xt::xarray<double> sample(const bool control, const bool replace, const std::string& address, const std::string& name);
+      virtual void observe(xt::xarray<double> value, const std::string& address, const std::string& name);
     };
 
     class Uniform: public Distribution
@@ -32,8 +32,8 @@ namespace pyprob_cpp
 
     public:
       Uniform(xt::xarray<double> low=xt::xarray<double> {0}, xt::xarray<double> high=xt::xarray<double> {1});
-      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
-      void observe(xt::xarray<double> value, const std::string& address);
+      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address, const std::string& name);
+      void observe(xt::xarray<double> value, const std::string& address, const std::string& name);
     };
 
     class Normal: public Distribution
@@ -44,8 +44,8 @@ namespace pyprob_cpp
 
     public:
       Normal(xt::xarray<double> mean=xt::xarray<double> {0}, xt::xarray<double> stddev=xt::xarray<double> {1});
-      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
-      void observe(xt::xarray<double> value, const std::string& address);
+      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address, const std::string& name);
+      void observe(xt::xarray<double> value, const std::string& address, const std::string& name);
     };
 
     class Categorical: public Distribution
@@ -55,8 +55,8 @@ namespace pyprob_cpp
 
     public:
       Categorical(xt::xarray<double> probs=xt::xarray<double> {1});
-      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
-      void observe(xt::xarray<double> value, const std::string& address);
+      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address, const std::string& name);
+      void observe(xt::xarray<double> value, const std::string& address, const std::string& name);
     };
 
     class Poisson: public Distribution
@@ -66,8 +66,8 @@ namespace pyprob_cpp
 
     public:
       Poisson(xt::xarray<double> rate=0);
-      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address);
-      void observe(xt::xarray<double> value, const std::string& address);
+      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address, const std::string& name);
+      void observe(xt::xarray<double> value, const std::string& address, const std::string& name);
     };
   }
 
@@ -86,10 +86,13 @@ namespace pyprob_cpp
   };
 
   xt::xarray<double> sample(distributions::Distribution& distribution);
-  xt::xarray<double> sample(distributions::Distribution& distribution, const std::string& address);
+  xt::xarray<double> sample(distributions::Distribution& distribution, const std::string& name);
   xt::xarray<double> sample(distributions::Distribution& distribution, const bool control, const bool replace);
-  xt::xarray<double> sample(distributions::Distribution& distribution, const bool control, const bool replace, const std::string& address);
-  void observe(distributions::Distribution& distribution, xt::xarray<double> value, const std::string& address="");
+  xt::xarray<double> sample(distributions::Distribution& distribution, const bool control, const bool replace, const std::string& name);
+  void observe(distributions::Distribution& distribution, xt::xarray<double> value);
+  void observe(distributions::Distribution& distribution, const std::string& name);
+  void observe(distributions::Distribution& distribution, xt::xarray<double> value, const std::string& name);
+  void observe(xt::xarray<double> value, const std::string& name);
 
   void setDefaultControl(bool control = true);
   void setDefaultReplace(bool replace = false);

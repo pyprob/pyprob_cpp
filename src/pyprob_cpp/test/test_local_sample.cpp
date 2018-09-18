@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
   {
     std::cout << pyprob_cpp::sample(uniform) << std::endl;
   }
-  pyprob_cpp::observe(uniform, 0);
+  pyprob_cpp::observe(uniform, xt::xarray<double> {0});
 
   printf("\nSampling from Categorical({0.2, 0.7, 0.1})");
   auto categorical = pyprob_cpp::distributions::Categorical(xt::xarray<double> {0.2, 0.7, 0.1});

@@ -20,11 +20,11 @@ namespace pyprob_cpp
 
   namespace distributions
   {
-    xt::xarray<double> Distribution::sample(const bool control, const bool replace, const std::string& address)
+    xt::xarray<double> Distribution::sample(const bool control, const bool replace, const std::string& address, const std::string& name)
     {
       return xt::xarray<double> {0};
     }
-    void Distribution::observe(xt::xarray<double> value, const std::string& address)
+    void Distribution::observe(xt::xarray<double> value, const std::string& address, const std::string& name)
     {
       return;
     }
@@ -34,7 +34,7 @@ namespace pyprob_cpp
       this->low = low;
       this->high = high;
     }
-    xt::xarray<double> Uniform::sample(const bool control, const bool replace, const std::string& address)
+    xt::xarray<double> Uniform::sample(const bool control, const bool replace, const std::string& address, const std::string& name)
     {
 
       if (!zmqSocketConnected)
@@ -53,7 +53,7 @@ namespace pyprob_cpp
       auto low = XTensorToTensor(builder, this->low);
       auto high = XTensorToTensor(builder, this->high);
       auto uniform = ppx::CreateUniform(builder, low, high);
-      auto sample = ppx::CreateSampleDirect(builder, address.c_str(), ppx::Distribution_Uniform, uniform.Union(), control, replace);
+      auto sample = ppx::CreateSampleDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Uniform, uniform.Union(), control, replace);
       auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Sample, sample.Union());
       sendMessage(message_request);
 
@@ -71,7 +71,7 @@ namespace pyprob_cpp
         std::exit(EXIT_FAILURE);
       }
     }
-    void Uniform::observe(xt::xarray<double> value, const std::string& address)
+    void Uniform::observe(xt::xarray<double> value, const std::string& address, const std::string& name)
     {
       if (!zmqSocketConnected)
       {
@@ -82,7 +82,7 @@ namespace pyprob_cpp
       auto low = XTensorToTensor(builder, this->low);
       auto high = XTensorToTensor(builder, this->high);
       auto uniform = ppx::CreateUniform(builder, low, high);
-      auto observe = ppx::CreateObserveDirect(builder, address.c_str(), ppx::Distribution_Uniform, uniform.Union(), val);
+      auto observe = ppx::CreateObserveDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Uniform, uniform.Union(), val);
       auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Observe, observe.Union());
       sendMessage(message_request);
 
@@ -97,7 +97,7 @@ namespace pyprob_cpp
       this->mean = mean;
       this->stddev = stddev;
     }
-    xt::xarray<double> Normal::sample(const bool control, const bool replace, const std::string& address)
+    xt::xarray<double> Normal::sample(const bool control, const bool replace, const std::string& address, const std::string& name)
     {
       if (!zmqSocketConnected)
       {
@@ -115,7 +115,7 @@ namespace pyprob_cpp
       auto mean = XTensorToTensor(builder, this->mean);
       auto stddev = XTensorToTensor(builder, this->stddev);
       auto normal = ppx::CreateNormal(builder, mean, stddev);
-      auto sample = ppx::CreateSampleDirect(builder, address.c_str(), ppx::Distribution_Normal, normal.Union(), control, replace);
+      auto sample = ppx::CreateSampleDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Normal, normal.Union(), control, replace);
       auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Sample, sample.Union());
       sendMessage(message_request);
 
@@ -133,7 +133,7 @@ namespace pyprob_cpp
         std::exit(EXIT_FAILURE);
       }
     }
-    void Normal::observe(xt::xarray<double> value, const std::string& address)
+    void Normal::observe(xt::xarray<double> value, const std::string& address, const std::string& name)
     {
       if (!zmqSocketConnected)
       {
@@ -144,7 +144,7 @@ namespace pyprob_cpp
       auto mean = XTensorToTensor(builder, this->mean);
       auto stddev = XTensorToTensor(builder, this->stddev);
       auto normal = ppx::CreateNormal(builder, mean, stddev);
-      auto observe = ppx::CreateObserveDirect(builder, address.c_str(), ppx::Distribution_Normal, normal.Union(), val);
+      auto observe = ppx::CreateObserveDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Normal, normal.Union(), val);
       auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Observe, observe.Union());
       sendMessage(message_request);
 
@@ -158,17 +158,17 @@ namespace pyprob_cpp
     {
       this->probs = probs;
     }
-    xt::xarray<double> Categorical::sample(const bool control, const bool replace, const std::string& address)
+    xt::xarray<double> Categorical::sample(const bool control, const bool replace, const std::string& address, const std::string& name)
     {
       if (!zmqSocketConnected)
       {
         printf("PPX (C++): Warning: Not connected, sampling locally.\n");
-        auto res = std::discrete_distribution<int>(this->probs.data().begin(), this->probs.data().end())(generator);
+        auto res = std::discrete_distribution<int>(this->probs.storage().begin(), this->probs.storage().end())(generator);
         return res;
       }
       auto probs = XTensorToTensor(builder, this->probs);
       auto categorical = ppx::CreateCategorical(builder, probs);
-      auto sample = ppx::CreateSampleDirect(builder, address.c_str(), ppx::Distribution_Categorical, categorical.Union(), control, replace);
+      auto sample = ppx::CreateSampleDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Categorical, categorical.Union(), control, replace);
       auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Sample, sample.Union());
       sendMessage(message_request);
 
@@ -186,7 +186,7 @@ namespace pyprob_cpp
         std::exit(EXIT_FAILURE);
       }
     }
-    void Categorical::observe(xt::xarray<double> value, const std::string& address)
+    void Categorical::observe(xt::xarray<double> value, const std::string& address, const std::string& name)
     {
       if (!zmqSocketConnected)
       {
@@ -196,7 +196,7 @@ namespace pyprob_cpp
       auto val = XTensorToTensor(builder, value);
       auto probs = XTensorToTensor(builder, this->probs);
       auto categorical = ppx::CreateCategorical(builder, probs);
-      auto observe = ppx::CreateObserveDirect(builder, address.c_str(), ppx::Distribution_Categorical, categorical.Union(), val);
+      auto observe = ppx::CreateObserveDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Categorical, categorical.Union(), val);
       auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Observe, observe.Union());
       sendMessage(message_request);
 
@@ -210,7 +210,7 @@ namespace pyprob_cpp
     {
       this->rate = rate;
     }
-    xt::xarray<double> Poisson::sample(const bool control, const bool replace, const std::string& address)
+    xt::xarray<double> Poisson::sample(const bool control, const bool replace, const std::string& address, const std::string& name)
     {
 
       if (!zmqSocketConnected)
@@ -227,7 +227,7 @@ namespace pyprob_cpp
       }
       auto rate = XTensorToTensor(builder, this->rate);
       auto poisson = ppx::CreatePoisson(builder, rate);
-      auto sample = ppx::CreateSampleDirect(builder, address.c_str(), ppx::Distribution_Poisson, poisson.Union(), control, replace);
+      auto sample = ppx::CreateSampleDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Poisson, poisson.Union(), control, replace);
       auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Sample, sample.Union());
       sendMessage(message_request);
 
@@ -245,7 +245,7 @@ namespace pyprob_cpp
         std::exit(EXIT_FAILURE);
       }
     }
-    void Poisson::observe(xt::xarray<double> value, const std::string& address)
+    void Poisson::observe(xt::xarray<double> value, const std::string& address, const std::string& name)
     {
       if (!zmqSocketConnected)
       {
@@ -255,7 +255,7 @@ namespace pyprob_cpp
       auto val = XTensorToTensor(builder, value);
       auto rate = XTensorToTensor(builder, this->rate);
       auto poisson = ppx::CreatePoisson(builder, rate);
-      auto observe = ppx::CreateObserveDirect(builder, address.c_str(), ppx::Distribution_Poisson, poisson.Union(), val);
+      auto observe = ppx::CreateObserveDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Poisson, poisson.Union(), val);
       auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Observe, observe.Union());
       sendMessage(message_request);
 
@@ -333,33 +333,62 @@ namespace pyprob_cpp
   xt::xarray<double> sample(distributions::Distribution& distribution)
   {
     auto address = extractAddress();
-    return distribution.sample(defaultControl, defaultReplace, address);
+    return distribution.sample(defaultControl, defaultReplace, address, nullptr);
   }
 
-  xt::xarray<double> sample(distributions::Distribution& distribution, const std::string& address)
+  xt::xarray<double> sample(distributions::Distribution& distribution, const std::string& name)
   {
-    return distribution.sample(defaultControl, defaultReplace, address);
+    auto address = extractAddress();
+    return distribution.sample(defaultControl, defaultReplace, address, name);
   }
 
   xt::xarray<double> sample(distributions::Distribution& distribution, const bool control, const bool replace)
   {
     auto address = extractAddress();
-    return distribution.sample(control, replace, address);
+    return distribution.sample(control, replace, address, nullptr);
   }
 
-  xt::xarray<double> sample(distributions::Distribution& distribution, const bool control, const bool replace, const std::string& address)
+  xt::xarray<double> sample(distributions::Distribution& distribution, const bool control, const bool replace, const std::string& name)
   {
-    return distribution.sample(control, replace, address);
+    auto address = extractAddress();
+    return distribution.sample(control, replace, address, name);
   }
 
-  void observe(distributions::Distribution& distribution, xt::xarray<double> value, const std::string& address)
+  void observe(distributions::Distribution& distribution, xt::xarray<double> value)
   {
-    auto addr = address;
-    if (addr.length() == 0)
+    auto address = extractAddress();
+    return distribution.observe(value, address, nullptr);
+  }
+
+  void observe(distributions::Distribution& distribution, const std::string& name)
+  {
+    auto address = extractAddress();
+    return distribution.observe(0, address, name);
+  }
+
+  void observe(distributions::Distribution& distribution, xt::xarray<double> value, const std::string& name)
+  {
+    auto address = extractAddress();
+    return distribution.observe(value, address, name);
+  }
+
+  void observe(xt::xarray<double> value, const std::string& name)
+  {
+    auto address = extractAddress();
+    if (!zmqSocketConnected)
     {
-      addr = extractAddress();
+      printf("PPX (C++): Warning: Not connected, observing locally.\n");
+      return;
     }
-    return distribution.observe(value, addr);
+    auto val = XTensorToTensor(builder, value);
+    auto observe = ppx::CreateObserveDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_NONE, 0, val);
+    auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Observe, observe.Union());
+    sendMessage(message_request);
+
+    zmq::message_t request;
+    zmqSocket.recv(&request);
+    // auto message_reply = ppx::GetMessage(request.data());
+    return;
   }
 
   void setDefaultControl(bool control)
@@ -388,7 +417,7 @@ namespace pyprob_cpp
   flatbuffers::Offset<ppx::Tensor> XTensorToTensor(flatbuffers::FlatBufferBuilder& builder, xt::xarray<double> xtensor)
   {
     auto shape = std::vector<int32_t>(xtensor.shape().begin(), xtensor.shape().end());
-    auto data = std::vector<double>(xtensor.data().begin(), xtensor.data().end());
+    auto data = std::vector<double>(xtensor.storage().begin(), xtensor.storage().end());
     return ppx::CreateTensorDirect(builder, &data, &shape);
   }
 
