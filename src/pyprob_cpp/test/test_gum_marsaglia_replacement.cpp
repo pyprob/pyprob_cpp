@@ -17,7 +17,7 @@ double marsaglia(double mean, double stddev)
 }
 
 
-xt::xarray<double> forward(xt::xarray<double> observation)
+xt::xarray<double> forward()
 {
   auto prior_mean = 1;
   auto prior_stddev = std::sqrt(5);
@@ -26,10 +26,8 @@ xt::xarray<double> forward(xt::xarray<double> observation)
   auto mu = marsaglia(prior_mean, prior_stddev);
 
   auto likelihood = pyprob_cpp::distributions::Normal(mu, likelihood_stddev);
-  for (auto & o : observation)
-  {
-    pyprob_cpp::observe(likelihood, o);
-  }
+  pyprob_cpp::observe(likelihood, "obs0");
+  pyprob_cpp::observe(likelihood, "obs1");
 
   return xt::xarray<double> {mu};
 }
@@ -38,7 +36,7 @@ xt::xarray<double> forward(xt::xarray<double> observation)
 int main(int argc, char *argv[])
 {
   auto serverAddress = (argc > 1) ? argv[1] : "tcp://*:5555";
-  pyprob_cpp::Model model = pyprob_cpp::Model(forward, xt::xarray<double> {}, "Gaussian with unkown mean (Marsaglia) with replacement C++");
+  pyprob_cpp::Model model = pyprob_cpp::Model(forward, "Gaussian with unkown mean (Marsaglia) with replacement C++");
   model.startServer(serverAddress);
   return 0;
 }

@@ -78,7 +78,9 @@ namespace pyprob_cpp
         printf("PPX (C++): Warning: Not connected, observing locally.\n");
         return;
       }
-      auto val = XTensorToTensor(builder, value);
+      flatbuffers::Offset<ppx::Tensor> val = 0;
+      if (value(0) != NONE_VALUE)
+        val = XTensorToTensor(builder, value);
       auto low = XTensorToTensor(builder, this->low);
       auto high = XTensorToTensor(builder, this->high);
       auto uniform = ppx::CreateUniform(builder, low, high);
@@ -140,7 +142,9 @@ namespace pyprob_cpp
         printf("PPX (C++): Warning: Not connected, observing locally.\n");
         return;
       }
-      auto val = XTensorToTensor(builder, value);
+      flatbuffers::Offset<ppx::Tensor> val = 0;
+      if (value(0) != NONE_VALUE)
+        val = XTensorToTensor(builder, value);
       auto mean = XTensorToTensor(builder, this->mean);
       auto stddev = XTensorToTensor(builder, this->stddev);
       auto normal = ppx::CreateNormal(builder, mean, stddev);
@@ -193,7 +197,9 @@ namespace pyprob_cpp
         printf("PPX (C++): Warning: Not connected, observing locally.\n");
         return;
       }
-      auto val = XTensorToTensor(builder, value);
+      flatbuffers::Offset<ppx::Tensor> val = 0;
+      if (value(0) != NONE_VALUE)
+        val = XTensorToTensor(builder, value);
       auto probs = XTensorToTensor(builder, this->probs);
       auto categorical = ppx::CreateCategorical(builder, probs);
       auto observe = ppx::CreateObserveDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Categorical, categorical.Union(), val);
@@ -252,7 +258,9 @@ namespace pyprob_cpp
         printf("PPX (C++): Warning: Not connected, observing locally.\n");
         return;
       }
-      auto val = XTensorToTensor(builder, value);
+      flatbuffers::Offset<ppx::Tensor> val = 0;
+      if (value(0) != NONE_VALUE)
+        val = XTensorToTensor(builder, value);
       auto rate = XTensorToTensor(builder, this->rate);
       auto poisson = ppx::CreatePoisson(builder, rate);
       auto observe = ppx::CreateObserveDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Poisson, poisson.Union(), val);
@@ -266,10 +274,9 @@ namespace pyprob_cpp
     }
   }
 
-  Model::Model(xt::xarray<double> (*modelFunction)(xt::xarray<double>), xt::xarray<double> defaultObservation, const std::string& modelName)
+  Model::Model(xt::xarray<double> (*modelFunction)(), const std::string& modelName)
   {
     this->modelFunction = modelFunction;
-    this->defaultObservation = defaultObservation;
     this->modelName = modelName;
     setlocale(LC_ALL,"");
     std::stringstream s;
@@ -297,16 +304,7 @@ namespace pyprob_cpp
         printf("PPX (C++): Executed traces: %'d\r", ++traces);
         std::cout.flush();
 
-        xt::xarray<double> obs;
-        if (message->body_as_Run()->observation() == NULL)
-        {
-          obs = this->defaultObservation;
-        }
-        else
-        {
-          obs = TensorToXTensor(message->body_as_Run()->observation());
-        }
-        auto result = XTensorToTensor(builder, this->modelFunction(obs));
+        auto result = XTensorToTensor(builder, this->modelFunction());
 
         auto runResult = ppx::CreateRunResult(builder, result);
         auto message = ppx::CreateMessage(builder, ppx::MessageBody_RunResult, runResult.Union());
@@ -363,7 +361,7 @@ namespace pyprob_cpp
   void observe(distributions::Distribution& distribution, const std::string& name)
   {
     auto address = extractAddress();
-    return distribution.observe(0, address, name);
+    return distribution.observe(NONE_VALUE, address, name);
   }
 
   void observe(distributions::Distribution& distribution, xt::xarray<double> value, const std::string& name)

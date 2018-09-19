@@ -9,8 +9,9 @@
 
 #define VERSION "0.1.4"
 #define GIT_BRANCH "master"
-#define GIT_COMMIT_HASH "dfb56d3"
+#define GIT_COMMIT_HASH "0471daa"
 
+#define NONE_VALUE 17081023.17081023f 
 
 namespace pyprob_cpp
 {
@@ -74,14 +75,13 @@ namespace pyprob_cpp
   class Model
   {
   private:
-    xt::xarray<double> (*modelFunction)(xt::xarray<double>);
-    xt::xarray<double> defaultObservation;
+    xt::xarray<double> (*modelFunction)();
     std::string serverAddress;
     std::string modelName;
     std::string systemName;
 
   public:
-    Model(xt::xarray<double> (*modelFunction)(xt::xarray<double>), xt::xarray<double> defaultObservation, const std::string& modelName);
+    Model(xt::xarray<double> (*modelFunction)(), const std::string& modelName);
     void startServer(const std::string& serverAddress = "tcp://*:5555");
   };
 

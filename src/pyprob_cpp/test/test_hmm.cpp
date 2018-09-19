@@ -4,7 +4,7 @@
 // Hidden Markov model
 // http://www.robots.ox.ac.uk/~fwood/assets/pdf/Wood-AISTATS-2014.pdf
 
-xt::xarray<double> forward(xt::xarray<double> observation)
+xt::xarray<double> forward()
 {
   auto init_dist = pyprob_cpp::distributions::Categorical(xt::xarray<double> {1, 1, 1});
   pyprob_cpp::distributions::Categorical trans_dists[] = {
@@ -20,10 +20,10 @@ xt::xarray<double> forward(xt::xarray<double> observation)
   int init_state = pyprob_cpp::sample(init_dist)(0);
   std::vector<int> states {init_state};
 
-  for (auto & o : observation)
+  for (int i = 0; i < 16; i++)
   {
     int state = pyprob_cpp::sample(trans_dists[states.back()])(0);
-    pyprob_cpp::observe(obs_dists[states.back()], o);
+    pyprob_cpp::observe(obs_dists[states.back()], "obs" + std::to_string(i));
     states.push_back(state);
   }
 
@@ -42,7 +42,7 @@ xt::xarray<double> forward(xt::xarray<double> observation)
 int main(int argc, char *argv[])
 {
   auto serverAddress = (argc > 1) ? argv[1] : "tcp://*:5555";
-  pyprob_cpp::Model model = pyprob_cpp::Model(forward, xt::xarray<double> {}, "Hidden Markov model C++");
+  pyprob_cpp::Model model = pyprob_cpp::Model(forward, "Hidden Markov model C++");
   model.startServer(serverAddress);
   return 0;
 }

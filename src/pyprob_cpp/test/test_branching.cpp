@@ -14,7 +14,7 @@ int fibonacci(int n)
     return b;
 }
 
-xt::xarray<double> forward(xt::xarray<double> observation)
+xt::xarray<double> forward()
 {
   auto count_prior = pyprob_cpp::distributions::Poisson(4);
   auto r = pyprob_cpp::sample(count_prior)(0);
@@ -29,7 +29,7 @@ xt::xarray<double> forward(xt::xarray<double> observation)
     l = 1 + fibonacci(3 * r) + pyprob_cpp::sample(count_prior)(0);
   }
   auto likelihood = pyprob_cpp::distributions::Poisson(l);
-  pyprob_cpp::observe(likelihood, observation);
+  pyprob_cpp::observe(likelihood, "obs");
   return r;
 }
 
@@ -37,7 +37,7 @@ xt::xarray<double> forward(xt::xarray<double> observation)
 int main(int argc, char *argv[])
 {
   auto serverAddress = (argc > 1) ? argv[1] : "tcp://*:5555";
-  pyprob_cpp::Model model = pyprob_cpp::Model(forward, xt::xarray<double> {}, "Branching C++");
+  pyprob_cpp::Model model = pyprob_cpp::Model(forward, "Branching C++");
   model.startServer(serverAddress);
   return 0;
 }
