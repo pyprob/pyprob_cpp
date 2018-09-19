@@ -23,7 +23,7 @@ xt::xarray<double> forward()
   for (int i = 0; i < 16; i++)
   {
     int state = pyprob_cpp::sample(trans_dists[states.back()])(0);
-    pyprob_cpp::observe(obs_dists[states.back()], "obs" + std::to_string(i));
+    pyprob_cpp::observe(obs_dists[state], "obs" + std::to_string(i));
     states.push_back(state);
   }
 
