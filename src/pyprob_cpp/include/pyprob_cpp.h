@@ -7,9 +7,9 @@
 #include <zmq.hpp>
 #include <random>
 
-#define VERSION "0.1.6"
+#define VERSION "0.1.7"
 #define GIT_BRANCH "master"
-#define GIT_COMMIT_HASH "e602cf9"
+#define GIT_COMMIT_HASH "694feac"
 
 #define NONE_VALUE 17081023.17081023f
 
