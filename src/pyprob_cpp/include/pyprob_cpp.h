@@ -7,11 +7,11 @@
 #include <zmq.hpp>
 #include <random>
 
-#define VERSION "0.1.5"
+#define VERSION "0.1.6"
 #define GIT_BRANCH "master"
-#define GIT_COMMIT_HASH "257b1f9"
+#define GIT_COMMIT_HASH "e602cf9"
 
-#define NONE_VALUE 17081023.17081023f 
+#define NONE_VALUE 17081023.17081023f
 
 namespace pyprob_cpp
 {
@@ -92,7 +92,8 @@ namespace pyprob_cpp
   void observe(distributions::Distribution& distribution, xt::xarray<double> value);
   void observe(distributions::Distribution& distribution, const std::string& name);
   void observe(distributions::Distribution& distribution, xt::xarray<double> value, const std::string& name);
-  void observe(xt::xarray<double> value, const std::string& name);
+  void tag(xt::xarray<double> value);
+  void tag(xt::xarray<double> value, const std::string& name);
 
   void setDefaultControl(bool control = true);
   void setDefaultReplace(bool replace = false);

@@ -7,7 +7,7 @@ RUN apt-get update
 RUN apt-get install -y nano git cmake gcc-5 g++-5 libzmq3-dev
 
 RUN mkdir /code
-RUN cd /code && git clone --branch v1.9.0 https://github.com/google/flatbuffers.git && cd flatbuffers && cmake -G "Unix Makefiles" && make install
+RUN cd /code && git clone --branch v1.10.0 https://github.com/google/flatbuffers.git && cd flatbuffers && cmake -G "Unix Makefiles" && make install
 RUN cd /code && git clone --branch 0.4.16 https://github.com/QuantStack/xtl.git && cd xtl && cmake . && make install
 RUN cd /code && git clone --branch 0.17.4 https://github.com/QuantStack/xtensor.git && cd xtensor && cmake . && make install
 

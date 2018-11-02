@@ -370,17 +370,22 @@ namespace pyprob_cpp
     return distribution.observe(value, address, name);
   }
 
-  void observe(xt::xarray<double> value, const std::string& name)
+  void tag(xt::xarray<double> value)
+  {
+    tag(value, "");
+  }
+
+  void tag(xt::xarray<double> value, const std::string& name)
   {
     auto address = extractAddress();
     if (!zmqSocketConnected)
     {
-      printf("PPX (C++): Warning: Not connected, observing locally.\n");
+      printf("PPX (C++): Warning: Not connected, tagging locally.\n");
       return;
     }
     auto val = XTensorToTensor(builder, value);
-    auto observe = ppx::CreateObserveDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_NONE, 0, val);
-    auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Observe, observe.Union());
+    auto tag = ppx::CreateTagDirect(builder, address.c_str(), name.c_str(), val);
+    auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Tag, tag.Union());
     sendMessage(message_request);
 
     zmq::message_t request;
