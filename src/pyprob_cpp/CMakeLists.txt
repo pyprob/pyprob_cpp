@@ -3,6 +3,7 @@ project(libpyprob_cpp VERSION 0.1 LANGUAGES CXX)
 set (VERSION "0.1.7")
 
 add_library(pyprob_cpp SHARED src/pyprob_cpp.cpp)
+target_link_libraries(pyprob_cpp "-ldl")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 

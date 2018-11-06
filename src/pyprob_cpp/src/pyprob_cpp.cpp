@@ -8,6 +8,8 @@
 #include <locale.h>
 #include <execinfo.h>
 
+#include <unordered_map>
+#include <dlfcn.h>
 
 namespace pyprob_cpp
 {
@@ -457,41 +459,63 @@ namespace pyprob_cpp
   {
     const int buffer_size = 128;
     void *buffer[buffer_size];
-    char **symbols;
+    static std::unordered_map<void *,std::string> addr2str;
 
     int nptrs = backtrace(buffer, buffer_size);
     if (nptrs == buffer_size)
     {
       printf("Warning: backtrace buffer full, addresses are likely to be truncated.\n");
     }
-    symbols = backtrace_symbols(buffer, nptrs);
-    if (symbols == nullptr)
-    {
-      std::perror("backtrace_symbols");
-      std::exit(EXIT_FAILURE);
-    }
+
     std::stringstream ret;
     ret << "[";
     bool begin = false;
     for (int j = nptrs - 1; j > 1; j--)
     {
-      auto s = std::string(symbols[j]);
+      const std::string *s = 0;
+      auto it = addr2str.find(buffer[j]);
+      if (it != addr2str.end())
+	s = &it->second;
+      else
+      {
+	Dl_info info;
+	int err = dladdr(buffer[j], &info);
+	if (err == 0) {
+	  std::perror("dladdr");
+	  std::exit(EXIT_FAILURE);
+	}
+	int status;
+	const char *dpp;
+	char *dp = abi::__cxa_demangle(info.dli_sname, 0, 0, &status);
+	if (status != 0)
+	  dpp = info.dli_sname;
+	else
+	  dpp = dp;
+	char namebuf[1024];
+	snprintf(namebuf, sizeof(namebuf), "%s+0x%lx", dpp, 
+	    (uint64_t)buffer[j] - (uint64_t)info.dli_saddr);
+	if (dp)
+	  free(dp);
+	auto ret = addr2str.insert(std::pair<void *,std::string>(
+				buffer[j],namebuf));
+	s = &ret.first->second;
+      }
+
       if (begin)
       {
-        ret << demangle(s);
+        ret << *s;
         if (j != 2)
         {
           ret << "; ";
         }
       }
-      if ((s.find("pyprob_cpp") != std::string::npos) && (s.find("startServer") != std::string::npos))
+      if ((s->find("pyprob_cpp") != std::string::npos) && (s->find("startServer") != std::string::npos))
       {
         begin = true;
       }
     }
 
     ret << "]";
-    std::free(symbols);
     return ret.str();
   }
 
