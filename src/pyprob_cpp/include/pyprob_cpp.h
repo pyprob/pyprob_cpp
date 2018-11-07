@@ -9,7 +9,7 @@
 
 #define VERSION "0.1.7"
 #define GIT_BRANCH "master"
-#define GIT_COMMIT_HASH "694feac"
+#define GIT_COMMIT_HASH "ae8ccad"
 
 #define NONE_VALUE 17081023.17081023f
 
