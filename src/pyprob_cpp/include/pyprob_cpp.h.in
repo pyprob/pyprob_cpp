@@ -15,7 +15,7 @@
 
 namespace pyprob_cpp
 {
-  std::default_random_engine generator;
+  extern std::default_random_engine generator;
   namespace distributions
   {
     class Distribution
