@@ -1,6 +1,6 @@
 project(libpyprob_cpp VERSION 0.1 LANGUAGES CXX)
 
-set (VERSION "0.1.9")
+set (VERSION "0.1.10")
 
 add_library(pyprob_cpp SHARED src/pyprob_cpp.cpp)
 target_link_libraries(pyprob_cpp "-ldl")

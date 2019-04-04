@@ -13,6 +13,7 @@
 
 namespace pyprob_cpp
 {
+  std::default_random_engine generator;
   zmq::context_t zmqContext = zmq::context_t(1);
   zmq::socket_t zmqSocket = zmq::socket_t(zmqContext, ZMQ_REP);
   bool zmqSocketConnected = false;
@@ -492,7 +493,7 @@ namespace pyprob_cpp
 	else
 	  dpp = dp;
 	char namebuf[1024];
-	snprintf(namebuf, sizeof(namebuf), "%s+0x%lx", dpp, 
+	snprintf(namebuf, sizeof(namebuf), "%s+0x%lx", dpp,
 	    (uint64_t)buffer[j] - (uint64_t)info.dli_saddr);
 	if (dp)
 	  free(dp);
