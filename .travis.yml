@@ -29,7 +29,7 @@ after_success:
 - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH, PR=$PR, TRAVIS_TAG=$TRAVIS_TAG, CURRENT_BRANCH=$CURRENT_BRANCH"
 - if [[ "$CURRENT_BRANCH" == "master" ]] || [[ -n "$TRAVIS_TAG" ]]; then GIT_COMMIT="$(git
   rev-parse HEAD)" ; echo $GIT_COMMIT ; docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-  ; docker build -t probprog/pyprob_cpp --build-arg GIT_COMMIT=$GIT_COMMIT . ; docker
-  tag probprog/pyprob_cpp probprog/pyprob_cpp:latest ; docker push probprog/pyprob_cpp:latest
-  ; if [[ -n "$TRAVIS_TAG" ]]; then docker tag probprog/pyprob_cpp probprog/pyprob_cpp:$TRAVIS_TAG
-  ; docker push probprog/pyprob_cpp:$TRAVIS_TAG ; fi fi
+  ; docker build -t pyprob/pyprob_cpp --build-arg GIT_COMMIT=$GIT_COMMIT . ; docker
+  tag pyprob/pyprob_cpp pyprob/pyprob_cpp:latest ; docker push pyprob/pyprob_cpp:latest
+  ; if [[ -n "$TRAVIS_TAG" ]]; then docker tag pyprob/pyprob_cpp pyprob/pyprob_cpp:$TRAVIS_TAG
+  ; docker push pyprob/pyprob_cpp:$TRAVIS_TAG ; fi fi

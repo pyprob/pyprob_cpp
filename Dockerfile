@@ -17,7 +17,7 @@ RUN cd /code/pyprob_cpp && rm -rf build && mkdir build && cd build && cmake ../s
 ARG GIT_COMMIT="unknown"
 
 LABEL project="pyprob_cpp"
-LABEL url="https://github.com/probprog/pyprob_cpp"
+LABEL url="https://github.com/pyprob/pyprob_cpp"
 LABEL maintainer="Atilim Gunes Baydin <gunes@robots.ox.ac.uk>"
 LABEL git_commit=$GIT_COMMIT
 
