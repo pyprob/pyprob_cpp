@@ -3,8 +3,7 @@ FROM ubuntu:18.04
 ENV CC=gcc-5
 ENV CXX=g++-5
 
-RUN apt-get update
-RUN apt-get install -y nano git cmake gcc-5 g++-5 libzmq3-dev
+RUN apt-get update && apt-get install -y git cmake gcc-5 g++-5 libzmq3-dev
 
 RUN mkdir /code
 RUN cd /code && git clone --branch v1.10.0 https://github.com/google/flatbuffers.git && cd flatbuffers && cmake -G "Unix Makefiles" && make install
