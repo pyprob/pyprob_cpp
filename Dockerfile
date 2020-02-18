@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 ENV CC=gcc-5
 ENV CXX=g++-5
