@@ -10,7 +10,7 @@ notifications:
 #-
 script:
 - GIT_COMMIT="$(git rev-parse HEAD)"
-- echo $GIT_COMMIT
+- echo "GIT_COMMIT=$GIT_COMMIT"
 - docker build -t pyprob/pyprob_cpp --build-arg GIT_COMMIT=$GIT_COMMIT .
 after_success:
 - export CURRENT_BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH;
@@ -18,9 +18,10 @@ after_success:
 - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH, PR=$PR, TRAVIS_TAG=$TRAVIS_TAG, CURRENT_BRANCH=$CURRENT_BRANCH"
 - if [[ "$CURRENT_BRANCH" == "master" ]] || [[ -n "$TRAVIS_TAG" ]]; then
     docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD;
-    docker tag pyprob/pyprob_cpp pyprob/pyprob_cpp:latest ; docker push pyprob/pyprob_cpp:latest;
+    docker tag pyprob/pyprob_cpp pyprob/pyprob_cpp:latest;
+    docker push pyprob/pyprob_cpp:latest;
     if [[ -n "$TRAVIS_TAG" ]]; then
       docker tag pyprob/pyprob_cpp pyprob/pyprob_cpp:$TRAVIS_TAG;
-    docker push pyprob/pyprob_cpp:$TRAVIS_TAG;
+      docker push pyprob/pyprob_cpp:$TRAVIS_TAG;
     fi
   fi
