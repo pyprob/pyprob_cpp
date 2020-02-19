@@ -42,7 +42,7 @@ namespace pyprob_cpp
 
       if (!zmqSocketConnected)
       {
-        printf("PPX (C++): Warning: Not connected, sampling locally.\n");
+        printf("ppx (C++): Warning: Not connected, sampling locally.\n");
         auto n = this->low.size();
         xt::xtensor<double, 1> res(std::array<size_t, 1>{n});
         for (size_t i = 0; i < n; i++)
@@ -70,7 +70,7 @@ namespace pyprob_cpp
       }
       else
       {
-        printf("PPX (C++): Error: Received an unexpected request. Cannot recover.\n");
+        printf("ppx (C++): Error: Received an unexpected request. Cannot recover.\n");
         std::exit(EXIT_FAILURE);
       }
     }
@@ -78,7 +78,7 @@ namespace pyprob_cpp
     {
       if (!zmqSocketConnected)
       {
-        printf("PPX (C++): Warning: Not connected, observing locally.\n");
+        printf("ppx (C++): Warning: Not connected, observing locally.\n");
         return;
       }
       flatbuffers::Offset<ppx::Tensor> val = 0;
@@ -106,7 +106,7 @@ namespace pyprob_cpp
     {
       if (!zmqSocketConnected)
       {
-        printf("PPX (C++): Warning: Not connected, sampling locally.\n");
+        printf("ppx (C++): Warning: Not connected, sampling locally.\n");
         auto n = this->mean.size();
         xt::xtensor<double, 1> res(std::array<size_t, 1>{n});
         for (size_t i = 0; i < n; i++)
@@ -134,7 +134,7 @@ namespace pyprob_cpp
       }
       else
       {
-        printf("PPX (C++): Error: Received an unexpected request. Cannot recover.\n");
+        printf("ppx (C++): Error: Received an unexpected request. Cannot recover.\n");
         std::exit(EXIT_FAILURE);
       }
     }
@@ -142,7 +142,7 @@ namespace pyprob_cpp
     {
       if (!zmqSocketConnected)
       {
-        printf("PPX (C++): Warning: Not connected, observing locally.\n");
+        printf("ppx (C++): Warning: Not connected, observing locally.\n");
         return;
       }
       flatbuffers::Offset<ppx::Tensor> val = 0;
@@ -169,7 +169,7 @@ namespace pyprob_cpp
     {
       if (!zmqSocketConnected)
       {
-        printf("PPX (C++): Warning: Not connected, sampling locally.\n");
+        printf("ppx (C++): Warning: Not connected, sampling locally.\n");
         auto res = std::discrete_distribution<int>(this->probs.storage().begin(), this->probs.storage().end())(generator);
         return res;
       }
@@ -189,7 +189,7 @@ namespace pyprob_cpp
       }
       else
       {
-        printf("PPX (C++): Error: Received an unexpected request. Cannot recover.\n");
+        printf("ppx (C++): Error: Received an unexpected request. Cannot recover.\n");
         std::exit(EXIT_FAILURE);
       }
     }
@@ -197,7 +197,7 @@ namespace pyprob_cpp
     {
       if (!zmqSocketConnected)
       {
-        printf("PPX (C++): Warning: Not connected, observing locally.\n");
+        printf("ppx (C++): Warning: Not connected, observing locally.\n");
         return;
       }
       flatbuffers::Offset<ppx::Tensor> val = 0;
@@ -224,7 +224,7 @@ namespace pyprob_cpp
 
       if (!zmqSocketConnected)
       {
-        printf("PPX (C++): Warning: Not connected, sampling locally.\n");
+        printf("ppx (C++): Warning: Not connected, sampling locally.\n");
         auto n = this->rate.size();
         xt::xtensor<double, 1> res(std::array<size_t, 1>{n});
         for (size_t i = 0; i < n; i++)
@@ -250,7 +250,7 @@ namespace pyprob_cpp
       }
       else
       {
-        printf("PPX (C++): Error: Received an unexpected request. Cannot recover.\n");
+        printf("ppx (C++): Error: Received an unexpected request. Cannot recover.\n");
         std::exit(EXIT_FAILURE);
       }
     }
@@ -258,7 +258,7 @@ namespace pyprob_cpp
     {
       if (!zmqSocketConnected)
       {
-        printf("PPX (C++): Warning: Not connected, observing locally.\n");
+        printf("ppx (C++): Warning: Not connected, observing locally.\n");
         return;
       }
       flatbuffers::Offset<ppx::Tensor> val = 0;
@@ -292,9 +292,9 @@ namespace pyprob_cpp
     this->serverAddress = serverAddress;
     zmqSocket.bind(serverAddress.c_str());
     zmqSocketConnected = true;
-    printf("PPX (C++): ZMQ_REP server listening at %s\n", this->serverAddress.c_str());
-    printf("PPX (C++): This system: %s\n", this->systemName.c_str());
-    printf("PPX (C++): Model name : %s\n", this->modelName.c_str());
+    printf("ppx (C++): ZMQ_REP server listening at %s\n", this->serverAddress.c_str());
+    printf("ppx (C++): This system: %s\n", this->systemName.c_str());
+    printf("ppx (C++): Model name : %s\n", this->modelName.c_str());
 
     int traces = 0;
     while(true)
@@ -304,7 +304,7 @@ namespace pyprob_cpp
       auto message = ppx::GetMessage(request.data());
       if (message->body_type() == ppx::MessageBody_Run)
       {
-        printf("PPX (C++): Executed traces: %'d\r", ++traces);
+        printf("ppx (C++): Executed traces: %'d\r", ++traces);
         std::cout.flush();
 
         auto result = XTensorToTensor(builder, this->modelFunction());
@@ -316,14 +316,14 @@ namespace pyprob_cpp
       else if (message->body_type() == ppx::MessageBody_Handshake)
       {
         auto systemName = message->body_as_Handshake()->system_name()->str();
-        printf("PPX (C++): Connected to PPL system: %s\n", systemName.c_str());
+        printf("ppx (C++): Connected to PPL system: %s\n", systemName.c_str());
         auto handshakeResult = ppx::CreateHandshakeResultDirect(builder, this->systemName.c_str(), this->modelName.c_str());
         auto message = ppx::CreateMessage(builder, ppx::MessageBody_HandshakeResult, handshakeResult.Union());
         sendMessage(message);
       }
       else
       {
-        printf("PPX (C++): Error: Received an unexpected request. Resetting...\n");
+        printf("ppx (C++): Error: Received an unexpected request. Resetting...\n");
         auto reset = ppx::CreateReset(builder);
         auto message = ppx::CreateMessage(builder, ppx::MessageBody_Reset, reset.Union());
         sendMessage(message);
@@ -383,7 +383,7 @@ namespace pyprob_cpp
     auto address = extractAddress();
     if (!zmqSocketConnected)
     {
-      printf("PPX (C++): Warning: Not connected, tagging locally.\n");
+      printf("ppx (C++): Warning: Not connected, tagging locally.\n");
       return;
     }
     auto val = XTensorToTensor(builder, value);

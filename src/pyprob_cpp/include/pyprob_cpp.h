@@ -7,15 +7,15 @@
 #include <zmq.hpp>
 #include <random>
 
-#define VERSION "0.1.8"
+#define VERSION "0.1.11"
 #define GIT_BRANCH "master"
-#define GIT_COMMIT_HASH "212391f"
+#define GIT_COMMIT_HASH "450031c"
 
 #define NONE_VALUE 17081023.17081023f
 
 namespace pyprob_cpp
 {
-  std::default_random_engine generator;
+  extern std::default_random_engine generator;
   namespace distributions
   {
     class Distribution
