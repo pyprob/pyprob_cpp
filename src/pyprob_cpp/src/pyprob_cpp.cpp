@@ -221,7 +221,6 @@ namespace pyprob_cpp
     }
     xt::xarray<double> Poisson::sample(const bool control, const bool replace, const std::string& address, const std::string& name)
     {
-
       if (!zmqSocketConnected)
       {
         printf("ppx (C++): Warning: Not connected, sampling locally.\n");
@@ -275,7 +274,393 @@ namespace pyprob_cpp
       // auto message_reply = ppx::GetMessage(request.data());
       return;
     }
-  }
+
+    Bernoulli::Bernoulli(xt::xarray<double> probs)
+    {
+      this->probs = probs;
+    }
+    xt::xarray<double> Bernoulli::sample(const bool control, const bool replace, const std::string& address, const std::string& name)
+    {
+      if (!zmqSocketConnected)
+      {
+        printf("ppx (C++): Error: Not connected. Local sampling from Bernoulli not implemented.\n");
+        std::exit(EXIT_FAILURE);
+      }
+      auto probs = XTensorToTensor(builder, this->probs);
+      auto bernoulli = ppx::CreateBernoulli(builder, probs);
+      auto sample = ppx::CreateSampleDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Bernoulli, bernoulli.Union(), control, replace);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Sample, sample.Union());
+      sendMessage(message_request);
+
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      auto message_reply = ppx::GetMessage(request.data());
+      if (message_reply->body_type() == ppx::MessageBody_SampleResult)
+      {
+        auto result = TensorToXTensor(message_reply->body_as_SampleResult()->result());
+        return result;
+      }
+      else
+      {
+        printf("ppx (C++): Error: Received an unexpected request. Cannot recover.\n");
+        std::exit(EXIT_FAILURE);
+      }
+    }
+    void Bernoulli::observe(xt::xarray<double> value, const std::string& address, const std::string& name)
+    {
+      if (!zmqSocketConnected)
+      {
+        printf("ppx (C++): Warning: Not connected, observing locally.\n");
+        return;
+      }
+      flatbuffers::Offset<ppx::Tensor> val = 0;
+      if (value(0) != NONE_VALUE)
+        val = XTensorToTensor(builder, value);
+      auto probs = XTensorToTensor(builder, this->probs);
+      auto bernoulli = ppx::CreateBernoulli(builder, probs);
+      auto observe = ppx::CreateObserveDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Bernoulli, bernoulli.Union(), val);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Observe, observe.Union());
+      sendMessage(message_request);
+
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      // auto message_reply = ppx::GetMessage(request.data());
+      return;
+    }
+
+    Beta::Beta(xt::xarray<double> concentration1, xt::xarray<double> concentration0)
+    {
+      this->concentration1 = concentration1;
+      this->concentration0 = concentration0;
+    }
+    xt::xarray<double> Beta::sample(const bool control, const bool replace, const std::string& address, const std::string& name)
+    {
+      if (!zmqSocketConnected)
+      {
+        printf("ppx (C++): Error: Not connected. Local sampling from Beta not implemented.\n");
+        std::exit(EXIT_FAILURE);
+      }
+      auto concentration1 = XTensorToTensor(builder, this->concentration1);
+      auto concentration0 = XTensorToTensor(builder, this->concentration0);
+      auto beta = ppx::CreateBeta(builder, concentration1, concentration0);
+      auto sample = ppx::CreateSampleDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Beta, beta.Union(), control, replace);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Sample, sample.Union());
+      sendMessage(message_request);
+
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      auto message_reply = ppx::GetMessage(request.data());
+      if (message_reply->body_type() == ppx::MessageBody_SampleResult)
+      {
+        auto result = TensorToXTensor(message_reply->body_as_SampleResult()->result());
+        return result;
+      }
+      else
+      {
+        printf("ppx (C++): Error: Received an unexpected request. Cannot recover.\n");
+        std::exit(EXIT_FAILURE);
+      }
+    }
+    void Beta::observe(xt::xarray<double> value, const std::string& address, const std::string& name)
+    {
+      if (!zmqSocketConnected)
+      {
+        printf("ppx (C++): Warning: Not connected, observing locally.\n");
+        return;
+      }
+      flatbuffers::Offset<ppx::Tensor> val = 0;
+      if (value(0) != NONE_VALUE)
+        val = XTensorToTensor(builder, value);
+      auto concentration1 = XTensorToTensor(builder, this->concentration1);
+      auto concentration0 = XTensorToTensor(builder, this->concentration0);
+      auto beta = ppx::CreateBeta(builder, concentration1, concentration0);
+      auto observe = ppx::CreateObserveDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Beta, beta.Union(), val);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Observe, observe.Union());
+      sendMessage(message_request);
+
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      // auto message_reply = ppx::GetMessage(request.data());
+      return;
+    }
+
+    Exponential::Exponential(xt::xarray<double> rate)
+    {
+      this->rate = rate;
+    }
+    xt::xarray<double> Exponential::sample(const bool control, const bool replace, const std::string& address, const std::string& name)
+    {
+      if (!zmqSocketConnected)
+      {
+        printf("ppx (C++): Error: Not connected. Local sampling from Exponential not implemented.\n");
+        std::exit(EXIT_FAILURE);
+      }
+      auto rate = XTensorToTensor(builder, this->rate);
+      auto exponential = ppx::CreateExponential(builder, rate);
+      auto sample = ppx::CreateSampleDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Exponential, exponential.Union(), control, replace);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Sample, sample.Union());
+      sendMessage(message_request);
+
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      auto message_reply = ppx::GetMessage(request.data());
+      if (message_reply->body_type() == ppx::MessageBody_SampleResult)
+      {
+        auto result = TensorToXTensor(message_reply->body_as_SampleResult()->result());
+        return result;
+      }
+      else
+      {
+        printf("ppx (C++): Error: Received an unexpected request. Cannot recover.\n");
+        std::exit(EXIT_FAILURE);
+      }
+    }
+    void Exponential::observe(xt::xarray<double> value, const std::string& address, const std::string& name)
+    {
+      if (!zmqSocketConnected)
+      {
+        printf("ppx (C++): Warning: Not connected, observing locally.\n");
+        return;
+      }
+      flatbuffers::Offset<ppx::Tensor> val = 0;
+      if (value(0) != NONE_VALUE)
+        val = XTensorToTensor(builder, value);
+      auto rate = XTensorToTensor(builder, this->rate);
+      auto exponential = ppx::CreateExponential(builder, rate);
+      auto observe = ppx::CreateObserveDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Exponential, exponential.Union(), val);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Observe, observe.Union());
+      sendMessage(message_request);
+
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      // auto message_reply = ppx::GetMessage(request.data());
+      return;
+    }
+
+    Gamma::Gamma(xt::xarray<double> concentration, xt::xarray<double> rate)
+    {
+      this->concentration = concentration;
+      this->rate = rate;
+    }
+    xt::xarray<double> Gamma::sample(const bool control, const bool replace, const std::string& address, const std::string& name)
+    {
+      if (!zmqSocketConnected)
+      {
+        printf("ppx (C++): Error: Not connected. Local sampling from Gamma not implemented.\n");
+        std::exit(EXIT_FAILURE);
+      }
+      auto concentration = XTensorToTensor(builder, this->concentration);
+      auto rate = XTensorToTensor(builder, this->rate);
+      auto gamma = ppx::CreateGamma(builder, concentration, rate);
+      auto sample = ppx::CreateSampleDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Gamma, gamma.Union(), control, replace);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Sample, sample.Union());
+      sendMessage(message_request);
+
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      auto message_reply = ppx::GetMessage(request.data());
+      if (message_reply->body_type() == ppx::MessageBody_SampleResult)
+      {
+        auto result = TensorToXTensor(message_reply->body_as_SampleResult()->result());
+        return result;
+      }
+      else
+      {
+        printf("ppx (C++): Error: Received an unexpected request. Cannot recover.\n");
+        std::exit(EXIT_FAILURE);
+      }
+    }
+    void Gamma::observe(xt::xarray<double> value, const std::string& address, const std::string& name)
+    {
+      if (!zmqSocketConnected)
+      {
+        printf("ppx (C++): Warning: Not connected, observing locally.\n");
+        return;
+      }
+      flatbuffers::Offset<ppx::Tensor> val = 0;
+      if (value(0) != NONE_VALUE)
+        val = XTensorToTensor(builder, value);
+      auto concentration = XTensorToTensor(builder, this->concentration);
+      auto rate = XTensorToTensor(builder, this->rate);
+      auto gamma = ppx::CreateGamma(builder, concentration, rate);
+      auto observe = ppx::CreateObserveDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Gamma, gamma.Union(), val);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Observe, observe.Union());
+      sendMessage(message_request);
+
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      // auto message_reply = ppx::GetMessage(request.data());
+      return;
+    }
+
+    LogNormal::LogNormal(xt::xarray<double> loc, xt::xarray<double> scale)
+    {
+      this->loc = loc;
+      this->scale = scale;
+    }
+    xt::xarray<double> LogNormal::sample(const bool control, const bool replace, const std::string& address, const std::string& name)
+    {
+      if (!zmqSocketConnected)
+      {
+        printf("ppx (C++): Error: Not connected. Local sampling from LogNormal not implemented.\n");
+        std::exit(EXIT_FAILURE);
+      }
+      auto loc = XTensorToTensor(builder, this->loc);
+      auto scale = XTensorToTensor(builder, this->scale);
+      auto log_normal = ppx::CreateLogNormal(builder, loc, scale);
+      auto sample = ppx::CreateSampleDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_LogNormal, log_normal.Union(), control, replace);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Sample, sample.Union());
+      sendMessage(message_request);
+
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      auto message_reply = ppx::GetMessage(request.data());
+      if (message_reply->body_type() == ppx::MessageBody_SampleResult)
+      {
+        auto result = TensorToXTensor(message_reply->body_as_SampleResult()->result());
+        return result;
+      }
+      else
+      {
+        printf("ppx (C++): Error: Received an unexpected request. Cannot recover.\n");
+        std::exit(EXIT_FAILURE);
+      }
+    }
+    void LogNormal::observe(xt::xarray<double> value, const std::string& address, const std::string& name)
+    {
+      if (!zmqSocketConnected)
+      {
+        printf("ppx (C++): Warning: Not connected, observing locally.\n");
+        return;
+      }
+      flatbuffers::Offset<ppx::Tensor> val = 0;
+      if (value(0) != NONE_VALUE)
+        val = XTensorToTensor(builder, value);
+      auto loc = XTensorToTensor(builder, this->loc);
+      auto scale = XTensorToTensor(builder, this->scale);
+      auto log_normal = ppx::CreateLogNormal(builder, loc, scale);
+      auto observe = ppx::CreateObserveDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_LogNormal, log_normal.Union(), val);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Observe, observe.Union());
+      sendMessage(message_request);
+
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      // auto message_reply = ppx::GetMessage(request.data());
+      return;
+    }
+
+    Binomial::Binomial(xt::xarray<double> total_count, xt::xarray<double> probs)
+    {
+      this->total_count = total_count;
+      this->probs = probs;
+    }
+    xt::xarray<double> Binomial::sample(const bool control, const bool replace, const std::string& address, const std::string& name)
+    {
+      if (!zmqSocketConnected)
+      {
+        printf("ppx (C++): Error: Not connected. Local sampling from Binomial not implemented.\n");
+        std::exit(EXIT_FAILURE);
+      }
+      auto total_count = XTensorToTensor(builder, this->total_count);
+      auto probs = XTensorToTensor(builder, this->probs);
+      auto binomial = ppx::CreateBinomial(builder, total_count, probs);
+      auto sample = ppx::CreateSampleDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Binomial, binomial.Union(), control, replace);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Sample, sample.Union());
+      sendMessage(message_request);
+
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      auto message_reply = ppx::GetMessage(request.data());
+      if (message_reply->body_type() == ppx::MessageBody_SampleResult)
+      {
+        auto result = TensorToXTensor(message_reply->body_as_SampleResult()->result());
+        return result;
+      }
+      else
+      {
+        printf("ppx (C++): Error: Received an unexpected request. Cannot recover.\n");
+        std::exit(EXIT_FAILURE);
+      }
+    }
+    void Binomial::observe(xt::xarray<double> value, const std::string& address, const std::string& name)
+    {
+      if (!zmqSocketConnected)
+      {
+        printf("ppx (C++): Warning: Not connected, observing locally.\n");
+        return;
+      }
+      flatbuffers::Offset<ppx::Tensor> val = 0;
+      if (value(0) != NONE_VALUE)
+        val = XTensorToTensor(builder, value);
+      auto total_count = XTensorToTensor(builder, this->total_count);
+      auto probs = XTensorToTensor(builder, this->probs);
+      auto weibull = ppx::CreateBinomial(builder, total_count, probs);
+      auto observe = ppx::CreateObserveDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Binomial, weibull.Union(), val);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Observe, observe.Union());
+      sendMessage(message_request);
+
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      // auto message_reply = ppx::GetMessage(request.data());
+      return;
+    }
+
+    Weibull::Weibull(xt::xarray<double> scale, xt::xarray<double> concentration)
+    {
+      this->scale = scale;
+      this->concentration = concentration;
+    }
+    xt::xarray<double> Weibull::sample(const bool control, const bool replace, const std::string& address, const std::string& name)
+    {
+      if (!zmqSocketConnected)
+      {
+        printf("ppx (C++): Error: Not connected. Local sampling from Weibull not implemented.\n");
+        std::exit(EXIT_FAILURE);
+      }
+      auto scale = XTensorToTensor(builder, this->scale);
+      auto concentration = XTensorToTensor(builder, this->concentration);
+      auto weibull = ppx::CreateWeibull(builder, scale, concentration);
+      auto sample = ppx::CreateSampleDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Weibull, weibull.Union(), control, replace);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Sample, sample.Union());
+      sendMessage(message_request);
+
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      auto message_reply = ppx::GetMessage(request.data());
+      if (message_reply->body_type() == ppx::MessageBody_SampleResult)
+      {
+        auto result = TensorToXTensor(message_reply->body_as_SampleResult()->result());
+        return result;
+      }
+      else
+      {
+        printf("ppx (C++): Error: Received an unexpected request. Cannot recover.\n");
+        std::exit(EXIT_FAILURE);
+      }
+    }
+    void Weibull::observe(xt::xarray<double> value, const std::string& address, const std::string& name)
+    {
+      if (!zmqSocketConnected)
+      {
+        printf("ppx (C++): Warning: Not connected, observing locally.\n");
+        return;
+      }
+      flatbuffers::Offset<ppx::Tensor> val = 0;
+      if (value(0) != NONE_VALUE)
+        val = XTensorToTensor(builder, value);
+      auto scale = XTensorToTensor(builder, this->scale);
+      auto concentration = XTensorToTensor(builder, this->concentration);
+      auto weibull = ppx::CreateWeibull(builder, scale, concentration);
+      auto observe = ppx::CreateObserveDirect(builder, address.c_str(), name.c_str(), ppx::Distribution_Weibull, weibull.Union(), val);
+      auto message_request = ppx::CreateMessage(builder, ppx::MessageBody_Observe, observe.Union());
+      sendMessage(message_request);
+
+      zmq::message_t request;
+      zmqSocket.recv(&request);
+      // auto message_reply = ppx::GetMessage(request.data());
+      return;
+    }
+}
 
   Model::Model(xt::xarray<double> (*modelFunction)(), const std::string& modelName)
   {

@@ -1,6 +1,6 @@
 project(libpyprob_cpp VERSION 0.1 LANGUAGES CXX)
 
-set (VERSION "0.1.12")
+set (VERSION "0.1.13")
 
 add_library(pyprob_cpp SHARED src/pyprob_cpp.cpp)
 target_link_libraries(pyprob_cpp "-ldl")
@@ -12,6 +12,9 @@ target_link_libraries(test_local_sample pyprob_cpp zmq)
 
 add_executable(test_set_defaults_and_addresses test/test_set_defaults_and_addresses.cpp)
 target_link_libraries(test_set_defaults_and_addresses pyprob_cpp zmq)
+
+add_executable(test_distributions test/test_distributions.cpp)
+target_link_libraries(test_distributions pyprob_cpp zmq)
 
 add_executable(test_gum test/test_gum.cpp)
 target_link_libraries(test_gum pyprob_cpp zmq)
@@ -30,6 +33,7 @@ target_link_libraries(test_branching pyprob_cpp zmq)
 
 add_test(test_local_sample_1 test_local_sample)
 add_test(test_set_defaults_and_addresses_1 test_set_defaults_and_addresses)
+add_test(test_distributions_1 test_distributions)
 add_test(test_gum_1 test_gum)
 add_test(test_gum_marsaglia_1 test_gum_marsaglia)
 add_test(test_gum_marsaglia_replacement_1 test_gum_marsaglia_replacement)
