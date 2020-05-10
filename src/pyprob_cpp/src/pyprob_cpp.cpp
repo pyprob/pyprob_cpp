@@ -42,7 +42,8 @@ namespace pyprob_cpp
 
       if (!zmqSocketConnected)
       {
-        printf("ppx (C++): Warning: Not connected, sampling locally.\n");
+        printf("ppx (C++): Warning: Not connected. Sampling locally.\n");
+        std::cout << "ppx (C++): Uniform(low: " << this->low << ", high: " << this->high << ")" << std::endl;
         auto n = this->low.size();
         xt::xtensor<double, 1> res(std::array<size_t, 1>{n});
         for (size_t i = 0; i < n; i++)
@@ -78,7 +79,8 @@ namespace pyprob_cpp
     {
       if (!zmqSocketConnected)
       {
-        printf("ppx (C++): Warning: Not connected, observing locally.\n");
+        printf("ppx (C++): Warning: Not connected. Observing locally.\n");
+        std::cout << "ppx (C++): Uniform(low: " << this->low << ", high: " << this->high << "), value: " << value << std::endl;
         return;
       }
       flatbuffers::Offset<ppx::Tensor> val = 0;
@@ -106,7 +108,8 @@ namespace pyprob_cpp
     {
       if (!zmqSocketConnected)
       {
-        printf("ppx (C++): Warning: Not connected, sampling locally.\n");
+        printf("ppx (C++): Warning: Not connected. Sampling locally.\n");
+        std::cout << "ppx (C++): Normal(mean: " << this->mean << ", stddev: " << this->stddev << ")" << std::endl;
         auto n = this->mean.size();
         xt::xtensor<double, 1> res(std::array<size_t, 1>{n});
         for (size_t i = 0; i < n; i++)
@@ -142,7 +145,8 @@ namespace pyprob_cpp
     {
       if (!zmqSocketConnected)
       {
-        printf("ppx (C++): Warning: Not connected, observing locally.\n");
+        printf("ppx (C++): Warning: Not connected. Observing locally.\n");
+        std::cout << "ppx (C++): Normal(mean: " << this->mean << ", stddev: " << this->stddev << "), value: " << value << std::endl;
         return;
       }
       flatbuffers::Offset<ppx::Tensor> val = 0;
@@ -169,7 +173,8 @@ namespace pyprob_cpp
     {
       if (!zmqSocketConnected)
       {
-        printf("ppx (C++): Warning: Not connected, sampling locally.\n");
+        printf("ppx (C++): Warning: Not connected. Sampling locally.\n");
+        std::cout << "ppx (C++): Categorical(probs: " << this->probs << ")" << std::endl;
         auto res = std::discrete_distribution<int>(this->probs.storage().begin(), this->probs.storage().end())(generator);
         return res;
       }
@@ -197,7 +202,8 @@ namespace pyprob_cpp
     {
       if (!zmqSocketConnected)
       {
-        printf("ppx (C++): Warning: Not connected, observing locally.\n");
+        printf("ppx (C++): Warning: Not connected. Observing locally.\n");
+        std::cout << "ppx (C++): Categorical(probs: " << this->probs << "), value: " << value << std::endl;
         return;
       }
       flatbuffers::Offset<ppx::Tensor> val = 0;
@@ -223,7 +229,8 @@ namespace pyprob_cpp
     {
       if (!zmqSocketConnected)
       {
-        printf("ppx (C++): Warning: Not connected, sampling locally.\n");
+        printf("ppx (C++): Warning: Not connected. Sampling locally.\n");
+        std::cout << "ppx (C++): Poisson(rate: " << this->rate << ")" << std::endl;
         auto n = this->rate.size();
         xt::xtensor<double, 1> res(std::array<size_t, 1>{n});
         for (size_t i = 0; i < n; i++)
@@ -257,7 +264,8 @@ namespace pyprob_cpp
     {
       if (!zmqSocketConnected)
       {
-        printf("ppx (C++): Warning: Not connected, observing locally.\n");
+        printf("ppx (C++): Warning: Not connected. Observing locally.\n");
+        std::cout << "ppx (C++): Poisson(rate: " << this->rate << "), value: " << value << std::endl;
         return;
       }
       flatbuffers::Offset<ppx::Tensor> val = 0;
@@ -284,6 +292,7 @@ namespace pyprob_cpp
       if (!zmqSocketConnected)
       {
         printf("ppx (C++): Error: Not connected. Local sampling from Bernoulli not implemented.\n");
+        std::cout << "ppx (C++): Bernoulli(probs: " << this->probs << ")" << std::endl;
         std::exit(EXIT_FAILURE);
       }
       auto probs = XTensorToTensor(builder, this->probs);
@@ -311,6 +320,7 @@ namespace pyprob_cpp
       if (!zmqSocketConnected)
       {
         printf("ppx (C++): Warning: Not connected, observing locally.\n");
+        std::cout << "ppx (C++): Bernoulli(probs: " << this->probs << "), value: " << value << std::endl;
         return;
       }
       flatbuffers::Offset<ppx::Tensor> val = 0;
@@ -338,6 +348,7 @@ namespace pyprob_cpp
       if (!zmqSocketConnected)
       {
         printf("ppx (C++): Error: Not connected. Local sampling from Beta not implemented.\n");
+        std::cout << "ppx (C++): Beta(concentration1: " << this->concentration1 << ", concentration0: " << this->concentration0 << ")" << std::endl;
         std::exit(EXIT_FAILURE);
       }
       auto concentration1 = XTensorToTensor(builder, this->concentration1);
@@ -366,6 +377,7 @@ namespace pyprob_cpp
       if (!zmqSocketConnected)
       {
         printf("ppx (C++): Warning: Not connected, observing locally.\n");
+        std::cout << "ppx (C++): Beta(concentration1: " << this->concentration1 << ", concentration0: " << this->concentration0 << "), value: " << value << std::endl;
         return;
       }
       flatbuffers::Offset<ppx::Tensor> val = 0;
@@ -393,6 +405,7 @@ namespace pyprob_cpp
       if (!zmqSocketConnected)
       {
         printf("ppx (C++): Error: Not connected. Local sampling from Exponential not implemented.\n");
+        std::cout << "ppx (C++): Exponential(rate: " << this->rate << ")" << std::endl;
         std::exit(EXIT_FAILURE);
       }
       auto rate = XTensorToTensor(builder, this->rate);
@@ -420,6 +433,7 @@ namespace pyprob_cpp
       if (!zmqSocketConnected)
       {
         printf("ppx (C++): Warning: Not connected, observing locally.\n");
+        std::cout << "ppx (C++): Exponential(rate: " << this->rate << "), value: " << value << std::endl;
         return;
       }
       flatbuffers::Offset<ppx::Tensor> val = 0;
@@ -447,6 +461,7 @@ namespace pyprob_cpp
       if (!zmqSocketConnected)
       {
         printf("ppx (C++): Error: Not connected. Local sampling from Gamma not implemented.\n");
+        std::cout << "ppx (C++): Gamma(concentration: " << this->concentration << ", rate: " << this->rate << ")" << std::endl;
         std::exit(EXIT_FAILURE);
       }
       auto concentration = XTensorToTensor(builder, this->concentration);
@@ -475,6 +490,7 @@ namespace pyprob_cpp
       if (!zmqSocketConnected)
       {
         printf("ppx (C++): Warning: Not connected, observing locally.\n");
+        std::cout << "ppx (C++): Gamma(concentration: " << this->concentration << ", rate: " << this->rate << "), value: " << value << std::endl;
         return;
       }
       flatbuffers::Offset<ppx::Tensor> val = 0;
@@ -503,6 +519,7 @@ namespace pyprob_cpp
       if (!zmqSocketConnected)
       {
         printf("ppx (C++): Error: Not connected. Local sampling from LogNormal not implemented.\n");
+        std::cout << "ppx (C++): LogNormal(loc: " << this->loc << ", scale: " << this->scale << ")" << std::endl;
         std::exit(EXIT_FAILURE);
       }
       auto loc = XTensorToTensor(builder, this->loc);
@@ -531,6 +548,7 @@ namespace pyprob_cpp
       if (!zmqSocketConnected)
       {
         printf("ppx (C++): Warning: Not connected, observing locally.\n");
+        std::cout << "ppx (C++): LogNormal(loc: " << this->loc << ", scale: " << this->scale << "), value: " << value << std::endl;
         return;
       }
       flatbuffers::Offset<ppx::Tensor> val = 0;
@@ -559,6 +577,7 @@ namespace pyprob_cpp
       if (!zmqSocketConnected)
       {
         printf("ppx (C++): Error: Not connected. Local sampling from Binomial not implemented.\n");
+        std::cout << "ppx (C++): Binomial(total_count: " << this->total_count << ", probs: " << this->probs << ")" << std::endl;
         std::exit(EXIT_FAILURE);
       }
       auto total_count = XTensorToTensor(builder, this->total_count);
@@ -587,6 +606,7 @@ namespace pyprob_cpp
       if (!zmqSocketConnected)
       {
         printf("ppx (C++): Warning: Not connected, observing locally.\n");
+        std::cout << "ppx (C++): Binomial(total_count: " << this->total_count << ", probs: " << this->probs << "), value: " << value << std::endl;
         return;
       }
       flatbuffers::Offset<ppx::Tensor> val = 0;
@@ -615,6 +635,7 @@ namespace pyprob_cpp
       if (!zmqSocketConnected)
       {
         printf("ppx (C++): Error: Not connected. Local sampling from Weibull not implemented.\n");
+        std::cout << "ppx (C++): Weibull(scale: " << this->scale << ", concentration: " << this->concentration << ")" << std::endl;
         std::exit(EXIT_FAILURE);
       }
       auto scale = XTensorToTensor(builder, this->scale);
@@ -643,6 +664,7 @@ namespace pyprob_cpp
       if (!zmqSocketConnected)
       {
         printf("ppx (C++): Warning: Not connected, observing locally.\n");
+        std::cout << "ppx (C++): Weibull(scale: " << this->scale << ", concentration: " << this->concentration << "), value: " << value << std::endl;
         return;
       }
       flatbuffers::Offset<ppx::Tensor> val = 0;
