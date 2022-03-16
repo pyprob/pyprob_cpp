@@ -169,7 +169,6 @@ namespace pyprob_cpp
 
   xt::xarray<double> sample(distributions::Distribution& distribution);
   xt::xarray<double> sample(distributions::Distribution& distribution, const std::string& name);
-  xt::xarray<double> sample(distributions::Distribution& distribution, const bool control);
   xt::xarray<double> sample(distributions::Distribution& distribution, const bool control, const std::string& name);
   void observe(distributions::Distribution& distribution, xt::xarray<double> value);
   void observe(distributions::Distribution& distribution, const std::string& name);
