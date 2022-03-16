@@ -749,12 +749,6 @@ namespace pyprob_cpp
     return distribution.sample(defaultControl, address, name);
   }
 
-  xt::xarray<double> sample(distributions::Distribution& distribution, const bool control)
-  {
-    auto address = extractAddress();
-    return distribution.sample(control, address, "");
-  }
-
   xt::xarray<double> sample(distributions::Distribution& distribution, const bool control, const std::string& name)
   {
     auto address = extractAddress();
