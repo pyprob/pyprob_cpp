@@ -8,7 +8,6 @@ xt::xarray<double> forward()
   auto likelihood_stddev = std::sqrt(2);
 
   pyprob_cpp::setDefaultControl(true);
-  pyprob_cpp::setDefaultReplace(false);
   auto normal1 = pyprob_cpp::distributions::Normal(prior_mean, prior_stddev);
   xt::xarray<double> mu1;
   for (int i = 0; i < 2; i++)
@@ -17,7 +16,6 @@ xt::xarray<double> forward()
   }
 
   pyprob_cpp::setDefaultControl(true);
-  pyprob_cpp::setDefaultReplace(true);
   auto normal2 = pyprob_cpp::distributions::Normal(mu1, prior_stddev);
   xt::xarray<double> mu2;
   for (int i = 0; i < 2; i++)
@@ -26,7 +24,6 @@ xt::xarray<double> forward()
   }
 
   pyprob_cpp::setDefaultControl(false);
-  pyprob_cpp::setDefaultReplace(false);
   auto normal3 = pyprob_cpp::distributions::Normal(mu2, prior_stddev);
   xt::xarray<double> mu3;
   for (int i = 0; i < 2; i++)
