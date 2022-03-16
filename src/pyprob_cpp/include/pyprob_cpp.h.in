@@ -21,7 +21,7 @@ namespace pyprob_cpp
     class Distribution
     {
     public:
-      virtual xt::xarray<double> sample(const bool control, const bool replace, const std::string& address, const std::string& name);
+      virtual xt::xarray<double> sample(const bool control, const std::string& address, const std::string& name);
       virtual void observe(xt::xarray<double> value, const std::string& address, const std::string& name);
     };
 
@@ -33,7 +33,7 @@ namespace pyprob_cpp
 
     public:
       Uniform(xt::xarray<double> low=xt::xarray<double> {0}, xt::xarray<double> high=xt::xarray<double> {1});
-      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address, const std::string& name);
+      xt::xarray<double> sample(const bool control, const std::string& address, const std::string& name);
       void observe(xt::xarray<double> value, const std::string& address, const std::string& name);
     };
 
@@ -45,7 +45,7 @@ namespace pyprob_cpp
 
     public:
       Normal(xt::xarray<double> mean=xt::xarray<double> {0}, xt::xarray<double> stddev=xt::xarray<double> {1});
-      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address, const std::string& name);
+      xt::xarray<double> sample(const bool control, const std::string& address, const std::string& name);
       void observe(xt::xarray<double> value, const std::string& address, const std::string& name);
     };
 
@@ -56,7 +56,7 @@ namespace pyprob_cpp
 
     public:
       Categorical(xt::xarray<double> probs=xt::xarray<double> {1});
-      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address, const std::string& name);
+      xt::xarray<double> sample(const bool control, const std::string& address, const std::string& name);
       void observe(xt::xarray<double> value, const std::string& address, const std::string& name);
     };
 
@@ -67,7 +67,7 @@ namespace pyprob_cpp
 
     public:
       Poisson(xt::xarray<double> rate=xt::xarray<double> {0});
-      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address, const std::string& name);
+      xt::xarray<double> sample(const bool control, const std::string& address, const std::string& name);
       void observe(xt::xarray<double> value, const std::string& address, const std::string& name);
     };
 
@@ -78,7 +78,7 @@ namespace pyprob_cpp
 
     public:
       Bernoulli(xt::xarray<double> probs=xt::xarray<double> {1});
-      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address, const std::string& name);
+      xt::xarray<double> sample(const bool control, const std::string& address, const std::string& name);
       void observe(xt::xarray<double> value, const std::string& address, const std::string& name);
     };
 
@@ -90,7 +90,7 @@ namespace pyprob_cpp
 
     public:
       Beta(xt::xarray<double> concentration1=xt::xarray<double> {0}, xt::xarray<double> concentration0=xt::xarray<double> {1});
-      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address, const std::string& name);
+      xt::xarray<double> sample(const bool control, const std::string& address, const std::string& name);
       void observe(xt::xarray<double> value, const std::string& address, const std::string& name);
     };
 
@@ -101,7 +101,7 @@ namespace pyprob_cpp
 
     public:
       Exponential(xt::xarray<double> rate=xt::xarray<double> {0});
-      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address, const std::string& name);
+      xt::xarray<double> sample(const bool control, const std::string& address, const std::string& name);
       void observe(xt::xarray<double> value, const std::string& address, const std::string& name);
     };
 
@@ -113,7 +113,7 @@ namespace pyprob_cpp
 
     public:
       Gamma(xt::xarray<double> concentration=xt::xarray<double> {0}, xt::xarray<double> rate=xt::xarray<double> {1});
-      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address, const std::string& name);
+      xt::xarray<double> sample(const bool control, const std::string& address, const std::string& name);
       void observe(xt::xarray<double> value, const std::string& address, const std::string& name);
     };
 
@@ -125,7 +125,7 @@ namespace pyprob_cpp
 
     public:
       LogNormal(xt::xarray<double> loc=xt::xarray<double> {0}, xt::xarray<double> scale=xt::xarray<double> {1});
-      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address, const std::string& name);
+      xt::xarray<double> sample(const bool control, const std::string& address, const std::string& name);
       void observe(xt::xarray<double> value, const std::string& address, const std::string& name);
     };
 
@@ -137,7 +137,7 @@ namespace pyprob_cpp
 
     public:
       Binomial(xt::xarray<double> total_count=xt::xarray<double> {0}, xt::xarray<double> probs=xt::xarray<double> {1});
-      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address, const std::string& name);
+      xt::xarray<double> sample(const bool control, const std::string& address, const std::string& name);
       void observe(xt::xarray<double> value, const std::string& address, const std::string& name);
     };
 
@@ -149,7 +149,7 @@ namespace pyprob_cpp
 
     public:
       Weibull(xt::xarray<double> scale=xt::xarray<double> {0}, xt::xarray<double> concentration=xt::xarray<double> {1});
-      xt::xarray<double> sample(const bool control, const bool replace, const std::string& address, const std::string& name);
+      xt::xarray<double> sample(const bool control, const std::string& address, const std::string& name);
       void observe(xt::xarray<double> value, const std::string& address, const std::string& name);
     };
   }
@@ -169,8 +169,8 @@ namespace pyprob_cpp
 
   xt::xarray<double> sample(distributions::Distribution& distribution);
   xt::xarray<double> sample(distributions::Distribution& distribution, const std::string& name);
-  xt::xarray<double> sample(distributions::Distribution& distribution, const bool control, const bool replace);
-  xt::xarray<double> sample(distributions::Distribution& distribution, const bool control, const bool replace, const std::string& name);
+  xt::xarray<double> sample(distributions::Distribution& distribution, const bool control);
+  xt::xarray<double> sample(distributions::Distribution& distribution, const bool control, const std::string& name);
   void observe(distributions::Distribution& distribution, xt::xarray<double> value);
   void observe(distributions::Distribution& distribution, const std::string& name);
   void observe(distributions::Distribution& distribution, xt::xarray<double> value, const std::string& name);
@@ -178,7 +178,6 @@ namespace pyprob_cpp
   void tag(xt::xarray<double> value, const std::string& name);
 
   void setDefaultControl(bool control = true);
-  void setDefaultReplace(bool replace = false);
 
   xt::xarray<double> TensorToXTensor(const ppx::Tensor* protocolTensor);
 
